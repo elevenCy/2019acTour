@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.OdsTourTrlCarInfoDao">
+	<!-- com.hqt1af.entity.manage.OdsTourTrlCarInfo -->
+ 	<resultMap id="base" type="OdsTourTrlCarInfo" >
+	     <result column="uniqueNo" property="uniqueNo" jdbcType="CHAR"/>
+	     <result column="direction" property="direction" jdbcType="INTEGER"/>
+	     <result column="plateNo" property="plateNo" jdbcType="CHAR"/>
+	     <result column="cardNo" property="cardNo" jdbcType="CHAR"/>
+	     <result column="passTime" property="passTime" jdbcType="CHAR"/>
+	     <result column="vehType" property="vehType" jdbcType="INTEGER"/>
+	     <result column="vehColor" property="vehColor" jdbcType="INTEGER"/>
+	     <result column="operatorName" property="operatorName" jdbcType="CHAR"/>
+	     <result column="terminalNo" property="terminalNo" jdbcType="CHAR"/>
+	     <result column="gateName" property="gateName" jdbcType="CHAR"/>
+	     <result column="laneName" property="laneName" jdbcType="CHAR"/>
+	     <result column="passType" property="passType" jdbcType="CHAR"/>
+	     <result column="inPassTime" property="inPassTime" jdbcType="CHAR"/>
+	     <result column="inUniqueNo" property="inUniqueNo" jdbcType="CHAR"/>
+	     <result column="shouldPay" property="shouldPay" jdbcType="INTEGER"/>
+	     <result column="actualPay" property="actualPay" jdbcType="INTEGER"/>
+	     <result column="picFilePath" property="picFilePath" jdbcType="CHAR"/>
+	     <result column="plateFilePath" property="plateFilePath" jdbcType="CHAR"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="OdsTourTrlCarInfo">
+       SELECT t.* FROM ods_tour_trl_car_info t WHERE 1=1 
+       <if test="id != null and id!='' ">
+        	AND t.id=#{id}
+       </if>
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="OdsTourTrlCarInfo">
+       SELECT t.* FROM ods_tour_trl_car_info t WHERE 1=1 
+       <if test="param.status!= null">
+        AND t.status=#{param.status}
+       </if>
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.create_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="OdsTourTrlCarInfo">
+       SELECT count(*) FROM ods_tour_trl_car_info t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="OdsTourTrlCarInfo">	
+ 	<![CDATA[
+	INSERT INTO ods_tour_trl_car_info(
+	uniqueNo ,direction ,plateNo ,cardNo ,passTime ,vehType ,vehColor ,operatorName ,terminalNo ,gateName ,laneName ,passType ,inPassTime ,inUniqueNo ,shouldPay ,actualPay ,picFilePath ,plateFilePath 
+	) VALUES (
+	#{uniqueNo}, #{direction}, #{plateNo}, #{cardNo}, #{passTime}, #{vehType}, #{vehColor}, #{operatorName}, #{terminalNo}, #{gateName}, #{laneName}, #{passType}, #{inPassTime}, #{inUniqueNo}, #{shouldPay}, #{actualPay}, #{picFilePath}, #{plateFilePath} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO ods_tour_trl_car_info(
+	uniqueNo ,direction ,plateNo ,cardNo ,passTime ,vehType ,vehColor ,operatorName ,terminalNo ,gateName ,laneName ,passType ,inPassTime ,inUniqueNo ,shouldPay ,actualPay ,picFilePath ,plateFilePath 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.uniqueNo}, #{o.direction}, #{o.plateNo}, #{o.cardNo}, #{o.passTime}, #{o.vehType}, #{o.vehColor}, #{o.operatorName}, #{o.terminalNo}, #{o.gateName}, #{o.laneName}, #{o.passType}, #{o.inPassTime}, #{o.inUniqueNo}, #{o.shouldPay}, #{o.actualPay}, #{o.picFilePath}, #{o.plateFilePath} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="OdsTourTrlCarInfo">
+		UPDATE ods_tour_trl_car_info 
+		SET
+          direction = #{direction},
+          plateNo = #{plateNo},
+          cardNo = #{cardNo},
+          passTime = #{passTime},
+          vehType = #{vehType},
+          vehColor = #{vehColor},
+          operatorName = #{operatorName},
+          terminalNo = #{terminalNo},
+          gateName = #{gateName},
+          laneName = #{laneName},
+          passType = #{passType},
+          inPassTime = #{inPassTime},
+          inUniqueNo = #{inUniqueNo},
+          shouldPay = #{shouldPay},
+          actualPay = #{actualPay},
+          picFilePath = #{picFilePath},
+          plateFilePath = #{plateFilePath}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="OdsTourTrlCarInfo">
+	DELETE FROM ods_tour_trl_car_info  
+	WHERE id=#{id}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM ods_tour_trl_car_info WHERE id in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.id}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>

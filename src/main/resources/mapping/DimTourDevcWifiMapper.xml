@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.DimTourDevcWifiDao">
+  <!-- com.hqt1af.entity.manage.DimTourDevcWifi -->
+  <resultMap id="base" type="DimTourDevcWifi" >
+    <result column="id" property="id" jdbcType="CHAR"/>
+    <result column="resourceId" property="resourceId" jdbcType="CHAR"/>
+    <result column="name" property="name" jdbcType="CHAR"/>
+    <result column="code" property="code" jdbcType="CHAR"/>
+    <result column="ip" property="ip" jdbcType="CHAR"/>
+    <result column="mac" property="mac" jdbcType="CHAR"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+    <result column="remark" property="remark" jdbcType="CHAR"/>
+    <result column="sort" property="sort" jdbcType="INTEGER"/>
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
+  </resultMap>
+  <resultMap id="baseCascadeResource" type="DimTourDevcWifi" >
+    <result column="id" property="id" jdbcType="CHAR"/>
+    <result column="resourceId" property="resourceId" jdbcType="CHAR"/>
+    <result column="name" property="name" jdbcType="CHAR"/>
+    <result column="code" property="code" jdbcType="CHAR"/>
+    <result column="ip" property="ip" jdbcType="CHAR"/>
+    <result column="mac" property="mac" jdbcType="CHAR"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+    <result column="remark" property="remark" jdbcType="CHAR"/>
+    <result column="sort" property="sort" jdbcType="INTEGER"/>
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
+    <association property="resource" column="resourceId"
+                 select = "com.hqt1af.repository.manage.dimTourBasResource.DimTourBasResourceDao.findById"/>
+  </resultMap>
+  <!-- 为了关联查寻 mybatis 组装sql -->
+  <select id="findById"  resultMap="base"  parameterType="java.lang.String">
+       SELECT t.* FROM dim_tour_devc_wifi t WHERE 1=1
+        AND t.resourceId = #{id}
+    </select>
+  <!-- 查看详情 -->
+  <select id="findCascadeResource"  resultMap="baseCascadeResource" parameterType="DimTourDevcWifi">
+    SELECT t.* FROM dim_tour_devc_wifi t WHERE 1=1
+    <if test="id != null and id!='' ">
+      AND t.id=#{id}
+    </if>
+  </select>
+  <!-- 查看详情 -->
+  <select id="find"  resultMap="baseCascadeResource" parameterType="DimTourDevcWifi">
+    SELECT t.* FROM dim_tour_devc_wifi t WHERE 1=1
+    <if test="id != null and id!='' ">
+      AND t.id=#{id}
+    </if>
+  </select>
+
+  <!-- 列表查询 -->
+  <select id="findByPage"  resultMap="baseCascadeResource" parameterType="DimTourDevcWifi">
+    SELECT t.* FROM dim_tour_devc_wifi t WHERE 1=1
+    <if test="param.status!= null">
+      AND t.status=#{param.status}
+    </if>
+    <if test="param.keyWord!=null and param.keyWord!='' ">
+      AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+    </if>
+    ORDER BY t.createTime desc
+  </select>
+
+  <!-- 记录数 -->
+  <select id="count"  resultType="int" parameterType="DimTourDevcWifi">
+       SELECT count(*) FROM dim_tour_devc_wifi t WHERE 1=1
+    </select>
+
+  <!-- 添加 -->
+  <insert id="insert" parameterType="DimTourDevcWifi">
+ 	<![CDATA[
+	INSERT INTO dim_tour_devc_wifi(
+	id ,resourceId ,name ,code ,ip ,mac ,status ,remark ,sort ,createTime ,updateTime
+	) VALUES (
+	#{id}, #{resourceId}, #{name}, #{code}, #{ip}, #{mac}, #{status}, #{remark}, #{sort}, #{createTime}, #{updateTime}
+	)
+	]]>
+	</insert>
+
+  <!-- 批量添加 -->
+  <insert id="insertBatch" parameterType="java.util.List">
+    INSERT INTO dim_tour_devc_wifi(
+    id ,resourceId ,name ,code ,ip ,mac ,status ,remark ,sort ,createTime ,updateTime
+    ) VALUES
+    <foreach item="o" collection="list"  separator="," >
+      (#{o.id}, #{o.resourceId}, #{o.name}, #{o.code}, #{o.ip}, #{o.mac}, #{o.status}, #{o.remark}, #{o.sort}, #{o.createTime}, #{o.updateTime} )
+    </foreach>
+  </insert>
+
+  <!-- 修改 -->
+  <update id="update" parameterType="DimTourDevcWifi">
+		UPDATE dim_tour_devc_wifi
+		SET
+          status = #{status},
+          remark = #{remark},
+          updateTime = #{updateTime}
+		WHERE name=#{name}
+	</update>
+
+  <!-- 删除 -->
+  <delete id="delete" parameterType="DimTourDevcWifi">
+	DELETE FROM dim_tour_devc_wifi
+	WHERE id=#{id}
+	</delete>
+
+  <!-- 批量删除 -->
+  <delete id="deleteBatch" parameterType ="java.util.List">
+    DELETE FROM dim_tour_devc_wifi WHERE id in(
+    <foreach item="o" collection="list" open="" separator="," close="" >
+      #{o.id}		</foreach>
+    )
+  </delete>
+
+  <select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+  <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+
+  <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>

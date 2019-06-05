@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.DwsTourWeatherMonitorRtDao">
+	<!-- com.hqt1af.entity.manage.DwsTourWeatherMonitorRt -->
+ 	<resultMap id="base" type="DwsTourWeatherMonitorRt" >
+	     <result column="code" property="code" jdbcType="VARCHAR"/>
+	     <result column="img_code" property="imgCode" jdbcType="VARCHAR"/>
+	     <result column="name" property="name" jdbcType="VARCHAR"/>
+	     <result column="temperature" property="temperature" jdbcType="INTEGER"/>
+	     <result column="high_temperature" property="highTemperature" jdbcType="INTEGER"/>
+	     <result column="low_temperature" property="lowTemperature" jdbcType="INTEGER"/>
+	     <result column="wind_dir" property="windDir" jdbcType="VARCHAR"/>
+	     <result column="wind_speed" property="windSpeed" jdbcType="VARCHAR"/>
+	     <result column="type" property="type" jdbcType="VARCHAR"/>
+	     <result column="qlty" property="qlty" jdbcType="VARCHAR"/>
+	     <result column="pm25" property="pm25" jdbcType="VARCHAR"/>
+	     <result column="createdate" property="createdate" jdbcType="TIMESTAMP"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="DwsTourWeatherMonitorRt">
+       SELECT t.* FROM dws_tour_weather_monitor_rt t WHERE 1=1 
+       <if test="id != null and id!='' ">
+        	AND t.id=#{id}
+       </if>
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="DwsTourWeatherMonitorRt">
+       SELECT t.* FROM dws_tour_weather_monitor_rt t WHERE 1=1 
+       <if test="param.status!= null">
+        AND t.status=#{param.status}
+       </if>
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.create_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="DwsTourWeatherMonitorRt">
+       SELECT count(*) FROM dws_tour_weather_monitor_rt t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="DwsTourWeatherMonitorRt">	
+ 	<![CDATA[
+	INSERT INTO dws_tour_weather_monitor_rt(
+	code ,img_code ,name ,temperature ,high_temperature ,low_temperature ,wind_dir ,wind_speed ,type ,qlty ,pm25 ,createdate 
+	) VALUES (
+	#{code}, #{imgCode}, #{name}, #{temperature}, #{highTemperature}, #{lowTemperature}, #{windDir}, #{windSpeed}, #{type}, #{qlty}, #{pm25}, #{createdate} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO dws_tour_weather_monitor_rt(
+	code ,img_code ,name ,temperature ,high_temperature ,low_temperature ,wind_dir ,wind_speed ,type ,qlty ,pm25 ,createdate 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.code}, #{o.imgCode}, #{o.name}, #{o.temperature}, #{o.highTemperature}, #{o.lowTemperature}, #{o.windDir}, #{o.windSpeed}, #{o.type}, #{o.qlty}, #{o.pm25}, #{o.createdate} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="DwsTourWeatherMonitorRt">
+		UPDATE dws_tour_weather_monitor_rt 
+		SET
+			<if test="imgCode != null and imgCode!='' ">
+        	  img_code = #{imgCode},
+			</if>
+			<if test="name != null and name!='' ">
+			  name = #{name},
+			</if>
+			<if test="temperature != null and temperature!='' ">
+			  temperature = #{temperature},
+			</if>
+			<if test="highTemperature != null and highTemperature!='' ">
+			  high_temperature = #{highTemperature},
+			</if>
+			<if test="lowTemperature != null and lowTemperature!='' ">
+			  low_temperature = #{lowTemperature},
+			</if>
+			<if test="windDir != null and windDir!='' ">
+			  wind_dir = #{windDir},
+			</if>
+			<if test="windSpeed != null and windSpeed!='' ">
+			  wind_speed = #{windSpeed},
+			</if>
+			<if test="type != null and type!='' ">
+			  type = #{type},
+			</if>
+			<if test="qlty != null and qlty!='' ">
+			  qlty = #{qlty},
+			</if>
+			<if test="pm25 != null and pm25!='' ">
+			  pm25 = #{pm25},
+			</if>
+          createdate = #{createdate}
+		WHERE code=#{code}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="DwsTourWeatherMonitorRt">
+	DELETE FROM dws_tour_weather_monitor_rt  
+	WHERE id=#{id}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM dws_tour_weather_monitor_rt WHERE id in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.id}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>
