@@ -67,38 +67,18 @@
 	<update id="update" parameterType="DwsTourWeatherMonitorRt">
 		UPDATE dws_tour_weather_monitor_rt 
 		SET
-			<if test="imgCode != null and imgCode!='' ">
-        	  img_code = #{imgCode},
-			</if>
-			<if test="name != null and name!='' ">
-			  name = #{name},
-			</if>
-			<if test="temperature != null and temperature!='' ">
-			  temperature = #{temperature},
-			</if>
-			<if test="highTemperature != null and highTemperature!='' ">
-			  high_temperature = #{highTemperature},
-			</if>
-			<if test="lowTemperature != null and lowTemperature!='' ">
-			  low_temperature = #{lowTemperature},
-			</if>
-			<if test="windDir != null and windDir!='' ">
-			  wind_dir = #{windDir},
-			</if>
-			<if test="windSpeed != null and windSpeed!='' ">
-			  wind_speed = #{windSpeed},
-			</if>
-			<if test="type != null and type!='' ">
-			  type = #{type},
-			</if>
-			<if test="qlty != null and qlty!='' ">
-			  qlty = #{qlty},
-			</if>
-			<if test="pm25 != null and pm25!='' ">
-			  pm25 = #{pm25},
-			</if>
+          img_code = #{imgCode},
+          name = #{name},
+          temperature = #{temperature},
+          high_temperature = #{highTemperature},
+          low_temperature = #{lowTemperature},
+          wind_dir = #{windDir},
+          wind_speed = #{windSpeed},
+          type = #{type},
+          qlty = #{qlty},
+          pm25 = #{pm25},
           createdate = #{createdate}
-		WHERE code=#{code}
+		WHERE id=#{id}
 	</update>
 	
 	<!-- 删除 -->

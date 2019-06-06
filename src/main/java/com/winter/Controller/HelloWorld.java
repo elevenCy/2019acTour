@@ -197,7 +197,7 @@ public class HelloWorld {
 //    }
 
     //监控点位
-    @Scheduled(fixedRate=360000)
+//    @Scheduled(fixedRate=360000)
     public void requestDevcVideoSurveillanceInfo(){
         HttpRequest httpRequest = new  HttpRequest();
         MD5 md5 = new MD5();
@@ -445,7 +445,7 @@ public class HelloWorld {
     private static final String ITC_BODY_NAME = "BODY";
     private static final String ITC_BODY = "";
 
-    @Scheduled(fixedRate=420000)
+//    @Scheduled(fixedRate=420000)
     public void requestDevcPublicBroadcast(){
         String TOKEN = loginIPCGetToken();
         if(TOKEN!=null&&!TOKEN.equals("")){
@@ -585,7 +585,7 @@ public class HelloWorld {
     private DimTourDevcWifiService dimTourDevcWifiService;
 
     //wifi设备状态位及连接数
-    @Scheduled(fixedRate=60000) //5分钟
+//    @Scheduled(fixedRate=60000) //5分钟
     public void wifiAnalysis(){
         String sql = "SELECT * FROM `actour`.`dim_tour_devc_wifi`";
         HttpRequest httpRequest = new  HttpRequest();
@@ -634,7 +634,7 @@ public class HelloWorld {
     private DwdTourParkMonitorRtService dwdTourParkMonitorRtService;
     @Autowired
     private OdsTourTrlCarInfoService odsTourTrlCarInfoService;
-    @Scheduled(fixedRate=360000) //10分钟
+//    @Scheduled(fixedRate=360000) //6分钟
     public void getVehicleInOutRecordPage(){
         HttpRequest httpRequest = new  HttpRequest();
         String ipAddress = PARK_URL + getVehicleInOutRecordPage;
@@ -736,7 +736,7 @@ public class HelloWorld {
         //net.sf.json.JSONObject json = HttpRequest.sendGetForWIFI(PARK_URL+getPassVehicle);
     }
 
-    @Scheduled(fixedRate=300000) //5分钟
+//    @Scheduled(fixedRate=300000) //5分钟
     public void getParkingInfo(){
         HttpRequest httpRequest = new  HttpRequest();
         String ipAddress = PARK_URL + getParkingInfo;
@@ -774,7 +774,7 @@ public class HelloWorld {
     }
     @Autowired
     private DwsTourWeatherMonitorRtService dwsTourWeatherMonitorRtService;
-    @Scheduled(fixedRate=7200000) //2H
+//    @Scheduled(fixedRate=7200000) //2H
     public void getrWeatherMonitorRt(){
         String res = HttpRequest.sendGet("https://free-api.heweather.com/s6/weather/now","key=270644c56e2f464091d39083bb83f23a&location=CN101210507&lang=zh-cn&unit=m");
         logger.info(res);

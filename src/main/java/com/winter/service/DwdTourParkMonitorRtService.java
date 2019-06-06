@@ -12,5 +12,5 @@ import com.winter.model.DwdTourParkMonitorRt;
  * @version V1.0
  */
 public interface DwdTourParkMonitorRtService extends BaseService<DwdTourParkMonitorRt> {
-	public List<DwdTourParkMonitorRt> findCascadeResource(DwdTourParkMonitorRt o);
+	public List<DwdTourParkMonitorRt> findCascadeResource(DwdTourParkMonitorRt o);	
 }

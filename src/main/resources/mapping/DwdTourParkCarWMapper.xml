@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.DwdTourParkCarWDao">
+	<!-- com.hqt1af.entity.manage.DwdTourParkCarW -->
+ 	<resultMap id="base" type="DwdTourParkCarW" >
+	     <result column="code" property="code" jdbcType="CHAR"/>
+	     <result column="number" property="number" jdbcType="INTEGER"/>
+	     <result column="numberIn" property="numberIn" jdbcType="INTEGER"/>
+	     <result column="numberOut" property="numberOut" jdbcType="INTEGER"/>
+	     <result column="otherIn" property="otherIn" jdbcType="INTEGER"/>
+	     <result column="bcarIn" property="bcarIn" jdbcType="INTEGER"/>
+	     <result column="scarIn" property="scarIn" jdbcType="INTEGER"/>
+	     <result column="otherOut" property="otherOut" jdbcType="INTEGER"/>
+	     <result column="bcarOut" property="bcarOut" jdbcType="INTEGER"/>
+	     <result column="scarOut" property="scarOut" jdbcType="INTEGER"/>
+	     <result column="Column_1" property="column1" jdbcType="CHAR"/>
+	     <result column="Column_2" property="column2" jdbcType="CHAR"/>
+	     <result column="date_time" property="dateTime" jdbcType="CHAR"/>
+	     <result column="createdate" property="createdate" jdbcType="TIMESTAMP"/>
+	     <result column="key_word" property="keyWord" jdbcType="VARCHAR"/>
+	     <result column="weeks" property="weeks" jdbcType="VARCHAR"/>
+   	     <result column="oip" property="oip" jdbcType="VARCHAR"/>
+	     <result column="bip" property="bip" jdbcType="VARCHAR"/>
+	     <result column="sip" property="sip" jdbcType="VARCHAR"/>
+	     <result column="oop" property="oop" jdbcType="VARCHAR"/>
+	     <result column="bop" property="bop" jdbcType="VARCHAR"/>
+	     <result column="sop" property="sop" jdbcType="VARCHAR"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="DwdTourParkCarW">
+       SELECT t.* FROM dwd_tour_park_car_w t WHERE 1=1 
+       <if test="id != null and id!='' ">
+        	AND t.id=#{id}
+       </if>
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="DwdTourParkCarW">
+       SELECT t.* FROM dwd_tour_park_car_w t WHERE 1=1 
+       <if test="param.status!= null">
+        AND t.status=#{param.status}
+       </if>
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.create_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="DwdTourParkCarW">
+       SELECT count(*) FROM dwd_tour_park_car_w t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="DwdTourParkCarW">	
+ 	<![CDATA[
+	INSERT INTO dwd_tour_park_car_w(
+	code ,number ,numberIn ,numberOut ,otherIn ,bcarIn ,scarIn ,otherOut ,bcarOut ,scarOut ,Column_1 ,Column_2 ,date_time ,createdate 
+	) VALUES (
+	#{code}, #{number}, #{numberIn}, #{numberOut}, #{otherIn}, #{bcarIn}, #{scarIn}, #{otherOut}, #{bcarOut}, #{scarOut}, #{column1}, #{column2}, #{dateTime}, #{createdate} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO dwd_tour_park_car_w(
+	code ,number ,numberIn ,numberOut ,otherIn ,bcarIn ,scarIn ,otherOut ,bcarOut ,scarOut ,Column_1 ,Column_2 ,date_time ,createdate 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.code}, #{o.number}, #{o.numberIn}, #{o.numberOut}, #{o.otherIn}, #{o.bcarIn}, #{o.scarIn}, #{o.otherOut}, #{o.bcarOut}, #{o.scarOut}, #{o.column1}, #{o.column2}, #{o.dateTime}, #{o.createdate} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="DwdTourParkCarW">
+		UPDATE dwd_tour_park_car_w 
+		SET
+          code = #{code},
+          number = #{number},
+          numberIn = #{numberIn},
+          numberOut = #{numberOut},
+          otherIn = #{otherIn},
+          bcarIn = #{bcarIn},
+          scarIn = #{scarIn},
+          otherOut = #{otherOut},
+          bcarOut = #{bcarOut},
+          scarOut = #{scarOut},
+          Column_1 = #{column1},
+          Column_2 = #{column2},
+          date_time = #{dateTime},
+          createdate = #{createdate}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="DwdTourParkCarW">
+	DELETE FROM dwd_tour_park_car_w  
+	WHERE id=#{id}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM dwd_tour_park_car_w WHERE id in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.id}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>

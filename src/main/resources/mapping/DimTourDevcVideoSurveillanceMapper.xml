@@ -35,7 +35,7 @@
 	     <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
 	     <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
 	     <association property="resource" column="resourceId"
-    		select = "com.hqt1af.repository.manage.dimTourBasResource.DimTourBasResourceDao.findById"/>
+    		select = "com.winter.mapper.dimTourBasResource.DimTourBasResourceDao.findById"/>
  	</resultMap>
  	<!-- 为了关联查寻 mybatis 组装sql -->
  	<select id="findById"  resultMap="base"  parameterType="java.lang.String">

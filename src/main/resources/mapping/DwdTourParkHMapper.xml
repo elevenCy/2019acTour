@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.DwdTourParkHDao">
+	<!-- com.hqt1af.entity.manage.DwdTourParkH -->
+ 	<resultMap id="base" type="DwdTourParkH" >
+	     <result column="code" property="code" jdbcType="VARCHAR"/>
+	     <result column="objectname" property="objectname" jdbcType="VARCHAR"/>
+	     <result column="objectcode" property="objectcode" jdbcType="VARCHAR"/>
+	     <result column="allnum" property="allnum" jdbcType="INTEGER"/>
+	     <result column="residual_number" property="residualNumber" jdbcType="INTEGER"/>
+	     <result column="hour" property="hour" jdbcType="INTEGER"/>
+	     <result column="date_time" property="dateTime" jdbcType="CHAR"/>
+	     <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="DwdTourParkH">
+       SELECT t.* FROM dwd_tour_park_h t WHERE 1=1 
+       <if test="id != null and id!='' ">
+        	AND t.id=#{id}
+       </if>
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="DwdTourParkH">
+       SELECT t.* FROM dwd_tour_park_h t WHERE 1=1 
+       <if test="param.status!= null">
+        AND t.status=#{param.status}
+       </if>
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.create_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="DwdTourParkH">
+       SELECT count(*) FROM dwd_tour_park_h t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="DwdTourParkH">	
+ 	<![CDATA[
+	INSERT INTO dwd_tour_park_h(
+	code ,objectname ,objectcode ,allnum ,residual_number ,hour ,date_time ,create_time 
+	) VALUES (
+	#{code}, #{objectname}, #{objectcode}, #{allnum}, #{residualNumber}, #{hour}, #{dateTime}, #{createTime} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO dwd_tour_park_h(
+	code ,objectname ,objectcode ,allnum ,residual_number ,hour ,date_time ,create_time 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.code}, #{o.objectname}, #{o.objectcode}, #{o.allnum}, #{o.residualNumber}, #{o.hour}, #{o.dateTime}, #{o.createTime} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="DwdTourParkH">
+		UPDATE dwd_tour_park_h 
+		SET
+          code = #{code},
+          objectname = #{objectname},
+          objectcode = #{objectcode},
+          allnum = #{allnum},
+          residual_number = #{residualNumber},
+          hour = #{hour},
+          date_time = #{dateTime},
+          create_time = #{createTime}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="DwdTourParkH">
+	DELETE FROM dwd_tour_park_h  
+	WHERE id=#{id}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM dwd_tour_park_h WHERE id in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.id}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>

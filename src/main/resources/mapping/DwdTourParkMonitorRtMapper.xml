@@ -24,7 +24,7 @@
 		 <result column="id" property="id" jdbcType="CHAR"/>
 	     <result column="resourceId" property="resourceId" jdbcType="CHAR"/>
 	     <association property="resource" column="resourceId"
-    		select = "com.hqt1af.repository.manage.dimTourBasResource.DimTourBasResourceDao.findById"/>
+    		select = "com.winter.mapper.DimTourBasResourceDao.findById"/>
  	</resultMap>
  	<!-- 查看详情 -->
  	<select id="find"  resultMap="baseCascadeResource" parameterType="DwdTourParkMonitorRt">

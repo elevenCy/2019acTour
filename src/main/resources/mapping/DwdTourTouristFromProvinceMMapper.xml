@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.DwdTourTouristFromProvinceMDao">
+	<!-- com.hqt1af.entity.manage.DwdTourTouristFromProvinceM -->
+ 	<resultMap id="base" type="DwdTourTouristFromProvinceM" >
+	     <result column="code" property="code" jdbcType="CHAR"/>
+	     <result column="province" property="province" jdbcType="VARCHAR"/>
+	     <result column="num" property="num" jdbcType="INTEGER"/>
+	     <result column="prop" property="prop" jdbcType="DECIMAL"/>
+	     <result column="date_time" property="dateTime" jdbcType="VARCHAR"/>
+	     <result column="createdate" property="createdate" jdbcType="TIMESTAMP"/>
+	     <result column="g_num" property="gNum" jdbcType="VARCHAR"/>
+	     <result column="g_prop" property="gProp" jdbcType="VARCHAR"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="DwdTourTouristFromProvinceM">
+       SELECT t.* FROM dwd_tour_tourist_from_province_m t WHERE 1=1 
+       <if test="code != null and code!='' ">
+        	AND t.code=#{code}
+       </if>
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="DwdTourTouristFromProvinceM">
+       SELECT t.* FROM dwd_tour_tourist_from_province_m t WHERE 1=1
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.province LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.date_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="DwdTourTouristFromProvinceM">
+       SELECT count(*) FROM dwd_tour_tourist_from_province_m t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="DwdTourTouristFromProvinceM">	
+ 	<![CDATA[
+	INSERT INTO dwd_tour_tourist_from_province_m(
+	code ,province ,num ,prop ,date_time ,createdate 
+	) VALUES (
+	#{code}, #{province}, #{num}, #{prop}, #{dateTime}, #{createdate} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO dwd_tour_tourist_from_province_m(
+	code ,province ,num ,prop ,date_time ,createdate 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.code}, #{o.province}, #{o.num}, #{o.prop}, #{o.dateTime}, #{o.createdate} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="DwdTourTouristFromProvinceM">
+		UPDATE dwd_tour_tourist_from_province_m 
+		SET
+          province = #{province},
+          num = #{num},
+          prop = #{prop},
+          date_time = #{dateTime},
+          createdate = #{createdate}
+		WHERE code=#{code}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="DwdTourTouristFromProvinceM">
+	DELETE FROM dwd_tour_tourist_from_province_m  
+	WHERE code=#{code}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM dwd_tour_tourist_from_province_m WHERE code in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.code}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>

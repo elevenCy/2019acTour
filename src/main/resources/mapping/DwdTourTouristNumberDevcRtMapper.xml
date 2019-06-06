@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.DwdTourTouristNumberDevcRtDao">
+	<!-- com.hqt1af.entity.manage.DwdTourTouristNumberDevcRt -->
+ 	<resultMap id="base" type="DwdTourTouristNumberDevcRt" >
+	     <result column="code" property="code" jdbcType="CHAR"/>
+	     <result column="number" property="number" jdbcType="INTEGER"/>
+	     <result column="createdate" property="createdate" jdbcType="TIMESTAMP"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="DwdTourTouristNumberDevcRt">
+       SELECT t.* FROM dwd_tour_tourist_number_devc_rt t WHERE 1=1 
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="DwdTourTouristNumberDevcRt">
+       SELECT t.* FROM dwd_tour_tourist_number_devc_rt t WHERE 1=1 
+       <if test="param.status!= null">
+        AND t.status=#{param.status}
+       </if>
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.create_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="DwdTourTouristNumberDevcRt">
+       SELECT count(*) FROM dwd_tour_tourist_number_devc_rt t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="DwdTourTouristNumberDevcRt">	
+ 	<![CDATA[
+	INSERT INTO dwd_tour_tourist_number_devc_rt(
+	code ,number ,createdate 
+	) VALUES (
+	#{code}, #{number}, #{createdate} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO dwd_tour_tourist_number_devc_rt(
+	code ,number ,createdate 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.code}, #{o.number}, #{o.createdate} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="DwdTourTouristNumberDevcRt">
+		UPDATE dwd_tour_tourist_number_devc_rt 
+		SET
+          code = #{code},
+          number = #{number},
+          createdate = #{createdate}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="DwdTourTouristNumberDevcRt">
+	DELETE FROM dwd_tour_tourist_number_devc_rt  
+	WHERE id=#{id}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM dwd_tour_tourist_number_devc_rt WHERE id in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.id}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>
