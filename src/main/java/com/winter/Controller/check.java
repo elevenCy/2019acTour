@@ -723,8 +723,23 @@ public class check {
 //    @Autowired
 //    private DwdTourTouristNumberDevcHService dwdTourTouristNumberDevcHService;//客流时数据 24
 //
-//    @Autowired
-//    private DwsTourWeatherMonitorRtService dwsTourWeatherMonitorRtService;//实时天气25
+    @Autowired
+    private DwsTourWeatherMonitorRtService dwsTourWeatherMonitorRtService;//实时天气25
+    private int checkDwsTourWeatherMonitorRt(){
+        int result = 1;
+        String sql = "select * from dws_tour_weather_monitor_rt where createdate >= DATE_SUB(NOW(),INTERVAL 4 HOUR)";
+        List<DwsTourWeatherMonitorRt> os = dwsTourWeatherMonitorRtService.findBySql(sql);
+        if(os==null){
+            System.out.println("dws_tour_weather_monitor_rt-->>>>>>天气数据2小时内未更新>>>>>>os>>>>>>null");
+            result = 0;
+        }else{
+            if(os.isEmpty()){
+                System.out.println("dws_tour_weather_monitor_rt-->>>>>>天气数据2小时内未更新>>>>>>os>>>>>>null");
+                result = 0;
+            }
+        }
+        return result;
+    }
 
     //监控点位
     @Scheduled(fixedRate=360000)
@@ -869,6 +884,11 @@ public class check {
         }
         if(checkDwsTourTouristNumberY_result == 2){
             msg.append("客流<年>数据检测为0请注意;");
+        }
+
+        int checkDwsTourWeatherMonitorRt_result = checkDwsTourWeatherMonitorRt();
+        if(checkDwsTourWeatherMonitorRt_result == 0){
+            msg.append("天气数据2小时内未更新;");
         }
         //陈一,吴江,戴总
         String phonelist = "17855827500,15695881085,18058153655";
