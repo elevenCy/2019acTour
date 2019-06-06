@@ -655,7 +655,7 @@ public class check {
         int result = 1;
         Date now = new Date();
         int month = getMonth(now);
-        String dateTime = getTimeString_YYYYMM(now);
+        String dateTime = getTimeString_YYYY(now);
         if(month<=3){
             dateTime = dateTime + "01";
         }else if(month<=6){
@@ -665,7 +665,7 @@ public class check {
         }else{
             dateTime = dateTime + "04";
         }
-        String sql = "select * from dws_tour_tourist_number_q where  date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
+        String sql = "select * from dws_tour_tourist_number_q where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
         List<DwsTourTouristNumberQ> os = dwsTourTouristNumberQService.findBySql(sql);
         if(os==null){
             System.out.println("dws_tour_tourist_number_q-->>>>>>客流>>季>>数据1小时内未更新>>>>>>os>>>>>>null");
@@ -742,7 +742,7 @@ public class check {
     }
 
     //监控点位
-    @Scheduled(fixedRate=360000)
+    @Scheduled(fixedRate=3600000)
     public void checkDb(){
         String title = "安昌古镇";
         StringBuffer msg =  new StringBuffer("");
@@ -890,18 +890,18 @@ public class check {
         if(checkDwsTourWeatherMonitorRt_result == 0){
             msg.append("天气数据2小时内未更新;");
         }
-        //陈一,吴江,戴总
+        //陈一17855827500,吴江15695881085,戴总18058153655
         String phonelist = "17855827500,15695881085,18058153655";
         if(!msg.toString().equals("")){
-            SendMsg.MsgPost("17855827500",title,msg.toString());
+            SendMsg.MsgPost(phonelist,title,msg.toString());
         }else{
             if(getHour(new Date())==7){
                 msg.append("正常运行");
-                SendMsg.MsgPost("17855827500",title,msg.toString());
+                SendMsg.MsgPost(phonelist,title,msg.toString());
             }
             if(getHour(new Date())==22){
                 msg.append("正常运行");
-                SendMsg.MsgPost("17855827500",title,msg.toString());
+                SendMsg.MsgPost(phonelist,title,msg.toString());
             }
         }
     }
