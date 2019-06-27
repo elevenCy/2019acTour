@@ -100,18 +100,20 @@ public class check {
         String sql = "select * from dwd_tour_park_car_d where date_time = DATE_FORMAT(now(),'%Y%m%d') and createdate >= DATE_SUB(NOW(),INTERVAL 1 HOUR)";
         List<DwdTourParkCarD> os = dwdTourParkCarDService.findBySql(sql);
         int result = 1;
+        Date now = new Date();
+        int thisHour = getHour(now);
         if(os==null){
             System.out.println("dwd_tour_park_car_d-->>>>>>停车场车辆>>天>>数据0.5小时内未更新>>>>>>os>>>>>>null");
             result = 0;
         }else{
             if(os.isEmpty()){
-                System.out.println("dwd_tour_park_car_d-->>>>>>停车场车辆>>天>>数据0.5小时内未更新>>>>>>os>>>>>>empty");
-                result = 0;
+                if(thisHour!=24&&thisHour>=7){
+                    System.out.println("dwd_tour_park_car_d-->>>>>>停车场车辆>>天>>数据0.5小时内未更新>>>>>>os>>>>>>empty");
+                    result = 0;
+                }
             }else{
                 System.out.println("dwd_tour_park_car_d-->>>>>>停车场车辆>>天>>数据正常更新");
-                Date now = new Date();
-                int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourParkCarD o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_park_car_d-->>>>>>停车场车辆>>天>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -143,17 +145,18 @@ public class check {
         String sql = "select * from dwd_tour_park_car_w where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
         List<DwdTourParkCarW> os = dwdTourParkCarWService.findBySql(sql);
         int result = 1;
-        if(os==null){
-            System.out.println("dwd_tour_park_car_w-->>>>>>停车场车辆>>周>>数据1小时内未更新>>>>>>os>>>>>>null");
-            result = 0;
-        }else{
-            if(os.isEmpty()){
-                System.out.println("dwd_tour_park_car_w-->>>>>>停车场车辆>>周>>数据1小时内未更新>>>>>>os>>>>>>empty");
+        int thisHour = getHour(now);
+        if(thisHour!=24&&thisHour>=7){
+            if(os==null){
+                System.out.println("dwd_tour_park_car_w-->>>>>>停车场车辆>>周>>数据1小时内未更新>>>>>>os>>>>>>null");
                 result = 0;
             }else{
-                System.out.println("dwd_tour_park_car_w-->>>>>>停车场车辆>>周>>数据正常更新");
-                int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(os.isEmpty()){
+                    System.out.println("dwd_tour_park_car_w-->>>>>>停车场车辆>>周>>数据1小时内未更新>>>>>>os>>>>>>empty");
+                    result = 0;
+                }else{
+                    System.out.println("dwd_tour_park_car_w-->>>>>>停车场车辆>>周>>数据正常更新");
+
                     DwdTourParkCarW o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_park_car_w-->>>>>>停车场车辆>>周>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -182,7 +185,7 @@ public class check {
             }else{
                 System.out.println("dwd_tour_park_car_m-->>>>>>停车场车辆>>月>>数据正常更新");
                 int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourParkCarM o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_park_car_m-->>>>>>停车场车辆>>月>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -221,7 +224,7 @@ public class check {
             }else{
                 System.out.println("dwd_tour_park_car_q-->>>>>>停车场车辆>>季>>数据正常更新");
                 int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourParkCarQ o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_park_car_q-->>>>>>停车场车辆>>季>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -250,7 +253,7 @@ public class check {
             }else{
                 System.out.println("dwd_tour_park_car_y-->>>>>>停车场车辆>>年>>数据正常更新");
                 int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourParkCarY o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_park_car_y-->>>>>>停车场车辆>>年>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -269,7 +272,7 @@ public class check {
         Date now = new Date();
         int thisHour = getHour(now);
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_park_car_from_city_d where date_time = DATE_FORMAT(now(),'%Y%m%d') and createdate >= DATE_SUB(NOW(),INTERVAL 1 HOUR)";
             List<DwdTourParkCarFromCityD> os = dwdTourParkCarFromCityDService.findBySql(sql);
             if (os == null) {
@@ -295,7 +298,7 @@ public class check {
         int thisHour = getHour(now);
         String dateTime = getTimeString_YYYYMM(now);
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_park_car_from_city_m where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
             List<DwdTourParkCarFromCityM> os = dwdTourParkCarFromCityMService.findBySql(sql);
             if (os == null) {
@@ -321,7 +324,7 @@ public class check {
         Date now = new Date();
         int thisHour = getHour(now);
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_park_car_from_province_d where date_time = DATE_FORMAT(now(),'%Y%m%d') and createdate >= DATE_SUB(NOW(),INTERVAL 1 HOUR)";
             List<DwdTourParkCarFromProvinceD> os = dwdTourParkCarFromProvinceDService.findBySql(sql);
             if (os == null) {
@@ -347,7 +350,7 @@ public class check {
         int thisHour = getHour(now);
         String dateTime = getTimeString_YYYYMM(now);
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_park_car_from_province_m where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
             List<DwdTourParkCarFromProvinceM> os = dwdTourParkCarFromProvinceMService.findBySql(sql);
             if (os == null) {
@@ -385,7 +388,7 @@ public class check {
             dateTime = dateTime + "05";
         }
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_tourist_from_city_w where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
             List<DwdTourTouristFromCityW> os = dwdTourTouristFromCityWService.findBySql(sql);
             if (os == null) {
@@ -411,7 +414,7 @@ public class check {
         int thisHour = getHour(now);
         String dateTime = getTimeString_YYYYMM(now);
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_tourist_from_city_m where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
             List<DwdTourTouristFromCityM> os = dwdTourTouristFromCityMService.findBySql(sql);
             if (os == null) {
@@ -449,7 +452,7 @@ public class check {
             dateTime = dateTime + "05";
         }
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_tourist_from_province_w where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
             List<DwdTourTouristFromProvinceW> os = dwdTourTouristFromProvinceWService.findBySql(sql);
             if (os == null) {
@@ -475,7 +478,7 @@ public class check {
         int thisHour = getHour(now);
         String dateTime = getTimeString_YYYYMM(now);
         //由于来源市时多条数据 若事件太早可能没有记录所以7点后再进行判定
-        if(thisHour>=7) {//七点后若无数据则需注意
+        if(thisHour!=24&&thisHour>=7) {//七点后若无数据则需注意
             String sql = "select * from dwd_tour_tourist_from_province_m where date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
             List<DwdTourTouristFromProvinceM> os = dwdTourTouristFromProvinceMService.findBySql(sql);
             if (os == null) {
@@ -509,7 +512,7 @@ public class check {
             }else{
                 System.out.println("dwd_tour_tourist_number_rt-->>>>>>客流>>实时>>数据正常更新");
                 int thisHour = getHour(new Date());
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourTouristNumberRt o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_tourist_number_rt-->>>>>>客流>>实时>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -537,7 +540,7 @@ public class check {
             }else{
                 System.out.println("dwd_tour_tourist_number_h-->>>>>>客流实>>时>>数据正常更新");
                 int thisHour = getHour(new Date());
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourTouristNumberH o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_tourist_number_h-->>>>>>客流>>时>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -565,7 +568,7 @@ public class check {
             }else{
                 System.out.println("dwd_tour_tourist_number_d-->>>>>>客流实>>日>>数据正常更新");
                 int thisHour = getHour(new Date());
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourTouristNumberD o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_tourist_number_d-->>>>>>客流>>日>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -597,17 +600,17 @@ public class check {
         }
         String sql = "select * from dws_tour_tourist_number_w where  date_time = '"+dateTime+"' and createdate >= DATE_SUB(NOW(),INTERVAL 2 HOUR)";
         List<DwsTourTouristNumberW> os = dwsTourTouristNumberWService.findBySql(sql);
-        if(os==null){
-            System.out.println("dws_tour_tourist_number_w-->>>>>>客流>>周>>数据1小时内未更新>>>>>>os>>>>>>null");
-            result = 0;
-        }else{
-            if(os.isEmpty()){
-                System.out.println("dws_tour_tourist_number_w-->>>>>>客流>>周>>数据1小时内未更新>>>>>>os>>>>>>empty");
+        int thisHour = getHour(now);
+        if(thisHour!=24&&thisHour>=7){
+            if(os==null){
+                System.out.println("dws_tour_tourist_number_w-->>>>>>客流>>周>>数据1小时内未更新>>>>>>os>>>>>>null");
                 result = 0;
             }else{
-                System.out.println("dws_tour_tourist_number_w-->>>>>>客流实>>周>>数据正常更新");
-                int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(os.isEmpty()){
+                    System.out.println("dws_tour_tourist_number_w-->>>>>>客流>>周>>数据1小时内未更新>>>>>>os>>>>>>empty");
+                    result = 0;
+                }else{
+                    System.out.println("dws_tour_tourist_number_w-->>>>>>客流实>>周>>数据正常更新");
                     DwsTourTouristNumberW o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dws_tour_tourist_number_w-->>>>>>客流>>周>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -637,7 +640,7 @@ public class check {
             }else{
                 System.out.println("dwd_tour_tourist_number_m-->>>>>>客流实>>月>>数据正常更新");
                 int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwdTourTouristNumberM o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dwd_tour_tourist_number_m-->>>>>>客流>>月>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -677,7 +680,7 @@ public class check {
             }else{
                 System.out.println("dws_tour_tourist_number_q-->>>>>>客流实>>季>>数据正常更新");
                 int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwsTourTouristNumberQ o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dws_tour_tourist_number_q-->>>>>>客流>>季>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");
@@ -707,7 +710,7 @@ public class check {
             }else{
                 System.out.println("dws_tour_tourist_number_y-->>>>>>客流实>>年>>数据正常更新");
                 int thisHour = getHour(now);
-                if(thisHour>=7){
+                if(thisHour!=24&&thisHour>=7){
                     DwsTourTouristNumberY o = os.get(0);
                     if(o.getNumber()==0){
                         System.out.println("dws_tour_tourist_number_y-->>>>>>客流>>年>>数据正常更新>>"+thisHour+"点为止数据为0>>数据可能异常或没有获取成功");

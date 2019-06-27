@@ -78,7 +78,7 @@
           qlty = #{qlty},
           pm25 = #{pm25},
           createdate = #{createdate}
-		WHERE id=#{id}
+		WHERE code=#{code}
 	</update>
 	
 	<!-- 删除 -->
