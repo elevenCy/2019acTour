@@ -656,7 +656,7 @@ public class HelloWorld {
         //获取本地数据库中最新过车记录的时间->用此时间去查询数据->有记录插入
         int pageNo = 1;
         //String beginTime = "2018-11-01 01:00:00";
-        String beginTime = "2019-05-14 00:00:00";
+        String beginTime = "2019-07-03 00:00:00";
         String sql = "select * from ods_tour_trl_car_info order by passTime desc limit 0,1";
         logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的过车记录");
         List<OdsTourTrlCarInfo> odsTourTrlCarInfos = odsTourTrlCarInfoService.findBySql(sql);
