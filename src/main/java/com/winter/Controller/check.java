@@ -745,7 +745,7 @@ public class check {
     }
 
     //监控点位
-    @Scheduled(fixedRate=3600000)
+//    @Scheduled(fixedRate=3600000)
     public void checkDb(){
         String title = "安昌古镇";
         StringBuffer msg =  new StringBuffer("");

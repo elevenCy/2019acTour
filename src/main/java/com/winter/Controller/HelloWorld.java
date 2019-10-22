@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.winter.common.HttpRequest;
 import com.winter.common.MD5;
+import com.winter.common.Ping;
 import com.winter.model.*;
 import com.winter.service.*;
 import org.slf4j.Logger;
@@ -197,7 +198,7 @@ public class HelloWorld {
 //    }
 
     //监控点位
-    @Scheduled(fixedRate=360000)
+    @Scheduled(fixedRate=3600000)
     public void requestDevcVideoSurveillanceInfo(){
         HttpRequest httpRequest = new  HttpRequest();
         MD5 md5 = new MD5();
@@ -445,7 +446,7 @@ public class HelloWorld {
     private static final String ITC_BODY_NAME = "BODY";
     private static final String ITC_BODY = "";
 
-    @Scheduled(fixedRate=420000)
+    @Scheduled(fixedRate=3600000)
     public void requestDevcPublicBroadcast(){
         String TOKEN = loginIPCGetToken();
         if(TOKEN!=null&&!TOKEN.equals("")){
@@ -585,7 +586,7 @@ public class HelloWorld {
     private DimTourDevcWifiService dimTourDevcWifiService;
 
     //wifi设备状态位及连接数
-    @Scheduled(fixedRate=60000) //5分钟
+    @Scheduled(fixedRate=1800000) //5分钟
     public void wifiAnalysis(){
         String sql = "SELECT * FROM `actour`.`dim_tour_devc_wifi`";
         HttpRequest httpRequest = new  HttpRequest();
@@ -634,142 +635,158 @@ public class HelloWorld {
     private DwdTourParkMonitorRtService dwdTourParkMonitorRtService;
     @Autowired
     private OdsTourTrlCarInfoService odsTourTrlCarInfoService;
-    @Scheduled(fixedRate=360000) //6分钟
+    @Scheduled(fixedRate=1800000) //6分钟
     public void getVehicleInOutRecordPage(){
-        HttpRequest httpRequest = new  HttpRequest();
-        String ipAddress = PARK_URL + getVehicleInOutRecordPage;
-//        1 pageNo int 页号 页号从 1 开始,当前查询页数
-//        2 pageSize int 页大小 每页数据条数
-//        3 plateNo string (可选)车牌号码 苏 E88888
-//        4 cardNo string (可选)卡号 4578945614
-//        5 beginTime string (可选)开始时间 2016-04-28 12:12:12
-//        6 endTime string (可选)结束时间 2016-05-28 12:12:12
-//        7 direction int (可选)行驶方向
-//        1 仅获取入场
-//        2 仅获取出场
-//                默认入场和出场全部获取
-//        8 specialPass int (可选)特殊放行
-//        1 仅软件异常放行
-//        2 仅遥控或摇杆放行(道闸开关到位信号需接入报警输入 端)
-//        默认获取全部的过车数据
+        try {
+//            if(Ping.ping("172.16.10.66")){
+                HttpRequest httpRequest = new  HttpRequest();
+                String ipAddress = PARK_URL + getVehicleInOutRecordPage;
+        //        1 pageNo int 页号 页号从 1 开始,当前查询页数
+        //        2 pageSize int 页大小 每页数据条数
+        //        3 plateNo string (可选)车牌号码 苏 E88888
+        //        4 cardNo string (可选)卡号 4578945614
+        //        5 beginTime string (可选)开始时间 2016-04-28 12:12:12
+        //        6 endTime string (可选)结束时间 2016-05-28 12:12:12
+        //        7 direction int (可选)行驶方向
+        //        1 仅获取入场
+        //        2 仅获取出场
+        //                默认入场和出场全部获取
+        //        8 specialPass int (可选)特殊放行
+        //        1 仅软件异常放行
+        //        2 仅遥控或摇杆放行(道闸开关到位信号需接入报警输入 端)
+        //        默认获取全部的过车数据
 
-        //获取本地数据库中最新过车记录的时间->用此时间去查询数据->有记录插入
-        int pageNo = 1;
-        //String beginTime = "2018-11-01 01:00:00";
-        String beginTime = "2019-07-03 00:00:00";
-        String sql = "select * from ods_tour_trl_car_info order by passTime desc limit 0,1";
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的过车记录");
-        List<OdsTourTrlCarInfo> odsTourTrlCarInfos = odsTourTrlCarInfoService.findBySql(sql);
-        if(!odsTourTrlCarInfos.isEmpty()){
-            beginTime =  odsTourTrlCarInfos.get(0).getPassTime();
-            logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的已有部分过车记录"+beginTime);
-        }else{
-            logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的没有过车记录"+beginTime);
-        }
-        int timeOut = 0;
-        while(true){
-            String jsonString = "{" +
-                    "\"pageNo\":"+pageNo+"," +
-                    "\"pageSize\":100," +
-                    "\"beginTime\":\""+beginTime+"\"" +//已经判断 对方的接口中的查询方式是 >beginTime
-                "}";
-            String res = httpRequest.sendPostJsonStr(ipAddress,jsonString);
-            if(res!="error"){
-                logger.info(res);
-                JSONObject resJsonObject = JSON.parseObject(res);
-                OdsTourTrlCarInfo odsTourTrlCarInfo = new OdsTourTrlCarInfo();
-                if(resJsonObject.getInteger("code")==0){
-                    int pageSize = resJsonObject.getInteger("pageSize");
-                    int total = resJsonObject.getInteger("total");
-                    JSONArray jsonArray = resJsonObject.getJSONArray("VehicleInOutRecords");
-                    for (Object obj : jsonArray) {
-                        JSONObject jsonObj = (JSONObject) obj;
-                        String uniqueNo = jsonObj.getString("uniqueNo");//1
-                        int direction = jsonObj.getInteger("direction");//2
-                        String plateNo = jsonObj.getString("plateNo");//3
-                        String cardNo = jsonObj.getString("cardNo");//4
-                        String passTime = jsonObj.getString("passTime");//5
-                        int vehType = jsonObj.getInteger("vehType");//6
-                        int vehColor = jsonObj.getInteger("vehColor");//7
-                        String operatorName = jsonObj.getString("operatorName");//8
-                        String terminalNo = jsonObj.getString("terminalNo");//9
-                        String gateName = jsonObj.getString("gateName");//10
-                        String laneName = jsonObj.getString("laneName");//11
-        //                String laneCode = jsonObj.getString("laneCode");//12 此行不加
-                        String passType = jsonObj.getString("passType");//13
-                        String inPassTime = jsonObj.getString("inPassTime");//14
-                        String inUniqueNo = jsonObj.getString("inUniqueNo");//15
-        //                int shouldPay = jsonObj.getInteger("shouldPay");//16
-        //                int actualPay = jsonObj.getInteger("actualPay");//17
-                        String picFilePath = jsonObj.getString("picFilePath");//18
-                        String plateFilePath = jsonObj.getString("plateFilePath");//19
-
-                        odsTourTrlCarInfo.setUniqueNo(uniqueNo);
-                        odsTourTrlCarInfo.setDirection(direction);
-                        odsTourTrlCarInfo.setPlateNo(plateNo);
-                        odsTourTrlCarInfo.setCardNo(cardNo);
-                        odsTourTrlCarInfo.setPassTime(passTime);
-                        odsTourTrlCarInfo.setVehType(vehType);
-                        odsTourTrlCarInfo.setVehColor(vehColor);
-                        odsTourTrlCarInfo.setOperatorName(operatorName);
-                        odsTourTrlCarInfo.setTerminalNo(terminalNo);
-                        odsTourTrlCarInfo.setGateName(gateName);
-                        odsTourTrlCarInfo.setLaneName(laneName);
-                        odsTourTrlCarInfo.setPassType(passType);
-                        odsTourTrlCarInfo.setInPassTime(inPassTime);
-                        odsTourTrlCarInfo.setInUniqueNo(inUniqueNo);
-        //                odsTourTrlCarInfo.setShouldPay(shouldPay);
-        //                odsTourTrlCarInfo.setActualPay(actualPay);
-                        odsTourTrlCarInfo.setPicFilePath(picFilePath);
-                        odsTourTrlCarInfo.setPlateFilePath(plateFilePath);
-                        logger.info(">>>>>>>>>>>>>>>>>>>>>>插入记录");
-                        odsTourTrlCarInfoService.insert(odsTourTrlCarInfo);
-                    }
-                    if(pageSize>total) break;
-                    else beginTime = odsTourTrlCarInfo.getPassTime();
+                //获取本地数据库中最新过车记录的时间->用此时间去查询数据->有记录插入
+                int pageNo = 1;
+                //String beginTime = "2018-11-01 01:00:00";
+                String beginTime = "2019-08-29 00:00:00";
+                String sql = "select * from ods_tour_trl_car_info order by passTime desc limit 0,1";
+                logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的过车记录");
+                List<OdsTourTrlCarInfo> odsTourTrlCarInfos = odsTourTrlCarInfoService.findBySql(sql);
+                if(!odsTourTrlCarInfos.isEmpty()){
+                    beginTime =  odsTourTrlCarInfos.get(0).getPassTime();
+                    logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的已有部分过车记录"+beginTime);
                 }else{
-                    logger.info(">>>>>>>>>>>>>>>>>>>>>>请求失败");
-                    return ;
+                    logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的没有过车记录"+beginTime);
                 }
-            }
+                int timeOut = 0;
+                while(true){
+                    String jsonString = "{" +
+                            "\"pageNo\":"+pageNo+"," +
+                            "\"pageSize\":100," +
+                            "\"beginTime\":\""+beginTime+"\"" +//已经判断 对方的接口中的查询方式是 >beginTime
+                        "}";
+                    String res = httpRequest.sendPostJsonStr(ipAddress,jsonString);
+                    if(res!="error"){
+                        logger.info(res);
+                        JSONObject resJsonObject = JSON.parseObject(res);
+                        OdsTourTrlCarInfo odsTourTrlCarInfo = new OdsTourTrlCarInfo();
+                        if(resJsonObject.getInteger("code")==0){
+                            int pageSize = resJsonObject.getInteger("pageSize");
+                            int total = resJsonObject.getInteger("total");
+                            JSONArray jsonArray = resJsonObject.getJSONArray("VehicleInOutRecords");
+                            for (Object obj : jsonArray) {
+                                JSONObject jsonObj = (JSONObject) obj;
+                                String uniqueNo = jsonObj.getString("uniqueNo");//1
+                                int direction = jsonObj.getInteger("direction");//2
+                                String plateNo = jsonObj.getString("plateNo");//3
+                                String cardNo = jsonObj.getString("cardNo");//4
+                                String passTime = jsonObj.getString("passTime");//5
+                                int vehType = jsonObj.getInteger("vehType");//6
+                                int vehColor = jsonObj.getInteger("vehColor");//7
+                                String operatorName = jsonObj.getString("operatorName");//8
+                                String terminalNo = jsonObj.getString("terminalNo");//9
+                                String gateName = jsonObj.getString("gateName");//10
+                                String laneName = jsonObj.getString("laneName");//11
+                //                String laneCode = jsonObj.getString("laneCode");//12 此行不加
+                                String passType = jsonObj.getString("passType");//13
+                                String inPassTime = jsonObj.getString("inPassTime");//14
+                                String inUniqueNo = jsonObj.getString("inUniqueNo");//15
+                //                int shouldPay = jsonObj.getInteger("shouldPay");//16
+                //                int actualPay = jsonObj.getInteger("actualPay");//17
+                                String picFilePath = jsonObj.getString("picFilePath");//18
+                                String plateFilePath = jsonObj.getString("plateFilePath");//19
+
+                                odsTourTrlCarInfo.setUniqueNo(uniqueNo);
+                                odsTourTrlCarInfo.setDirection(direction);
+                                odsTourTrlCarInfo.setPlateNo(plateNo);
+                                odsTourTrlCarInfo.setCardNo(cardNo);
+                                odsTourTrlCarInfo.setPassTime(passTime);
+                                odsTourTrlCarInfo.setVehType(vehType);
+                                odsTourTrlCarInfo.setVehColor(vehColor);
+                                odsTourTrlCarInfo.setOperatorName(operatorName);
+                                odsTourTrlCarInfo.setTerminalNo(terminalNo);
+                                odsTourTrlCarInfo.setGateName(gateName);
+                                odsTourTrlCarInfo.setLaneName(laneName);
+                                odsTourTrlCarInfo.setPassType(passType);
+                                odsTourTrlCarInfo.setInPassTime(inPassTime);
+                                odsTourTrlCarInfo.setInUniqueNo(inUniqueNo);
+                //                odsTourTrlCarInfo.setShouldPay(shouldPay);
+                //                odsTourTrlCarInfo.setActualPay(actualPay);
+                                odsTourTrlCarInfo.setPicFilePath(picFilePath);
+                                odsTourTrlCarInfo.setPlateFilePath(plateFilePath);
+                                logger.info(">>>>>>>>>>>>>>>>>>>>>>插入记录");
+                                odsTourTrlCarInfoService.insert(odsTourTrlCarInfo);
+                            }
+                            if(pageSize>total) break;
+                            else beginTime = odsTourTrlCarInfo.getPassTime();
+                        }else{
+                            logger.info(">>>>>>>>>>>>>>>>>>>>>>请求失败");
+                            return ;
+                        }
+                    }
+                }
+//            }else{
+//                logger.info(">>>>>>>>>>>>>>>>>>>>>>网络不通");
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         //net.sf.json.JSONObject json = HttpRequest.sendGetForWIFI(PARK_URL+getPassVehicle);
     }
 
-    @Scheduled(fixedRate=300000) //5分钟
+    @Scheduled(fixedRate=600000) //5分钟
     public void getParkingInfo(){
-        HttpRequest httpRequest = new  HttpRequest();
-        String ipAddress = PARK_URL + getParkingInfo;
-        String res = httpRequest.sendPostJsonStr(ipAddress,null);
-        logger.info(res);
-        JSONObject resJsonObject = JSON.parseObject(res);
-        if(resJsonObject.getInteger("code")==0){
-            String parkCode = resJsonObject.getString("regionName");//停车场code 名称不改
-            logger.info(parkCode);
-            JSONArray jsonArray = resJsonObject.getJSONArray("regionInfos");
-            int total = 0;
-            int current = 0;
-            //遍历方式2
-            for (Object obj : jsonArray) {
-                JSONObject jsonObj = (JSONObject) obj;
-                String regionName = jsonObj.getString("regionName");//区域名称
-                int regionId = jsonObj.getInteger("regionId");//区域 ID
-                int totalLots = jsonObj.getInteger("totalLots");//区域总车位数
-                int currentLots = jsonObj.getInteger("currentLots");//区域剩余车位数
-                total = total + totalLots;
-                current = current + currentLots;
-            }
-            DwdTourParkMonitorRt dwdTourParkMonitorRt = new DwdTourParkMonitorRt();
-            dwdTourParkMonitorRt.setId("10118110514421501000");//由于只有一个停车场 默认其id
-            dwdTourParkMonitorRt.setObjectname("安昌古镇停车场");
-            dwdTourParkMonitorRt.setAllnum(total);
-            dwdTourParkMonitorRt.setResidualNumber(current);
-            dwdTourParkMonitorRt.setDateTime(new Date());
-            logger.info(">>>>>>>>>>>>>>>>>>>>>>更新停车场信息");
-            dwdTourParkMonitorRtService.update(dwdTourParkMonitorRt);
-            logger.info(">>>>>>>>>>>>>>>>>>>>>>更新停车场信息>>>>>>>>>>>>>>>>>>>>>>成功");
-        }else{
-            logger.info("请求失败");
+        try {
+//            if(Ping.ping("172.16.10.66")){
+                HttpRequest httpRequest = new  HttpRequest();
+                String ipAddress = PARK_URL + getParkingInfo;
+                String res = httpRequest.sendPostJsonStr(ipAddress,null);
+                logger.info(res);
+                JSONObject resJsonObject = JSON.parseObject(res);
+                if(resJsonObject.getInteger("code")==0){
+                    String parkCode = resJsonObject.getString("regionName");//停车场code 名称不改
+                    logger.info(parkCode);
+                    JSONArray jsonArray = resJsonObject.getJSONArray("regionInfos");
+                    int total = 0;
+                    int current = 0;
+                    //遍历方式2
+                    for (Object obj : jsonArray) {
+                        JSONObject jsonObj = (JSONObject) obj;
+                        String regionName = jsonObj.getString("regionName");//区域名称
+                        int regionId = jsonObj.getInteger("regionId");//区域 ID
+                        int totalLots = jsonObj.getInteger("totalLots");//区域总车位数
+                        int currentLots = jsonObj.getInteger("currentLots");//区域剩余车位数
+                        total = total + totalLots;
+                        current = current + currentLots;
+                    }
+                    DwdTourParkMonitorRt dwdTourParkMonitorRt = new DwdTourParkMonitorRt();
+                    dwdTourParkMonitorRt.setId("10118110514421501000");//由于只有一个停车场 默认其id
+                    dwdTourParkMonitorRt.setObjectname("安昌古镇停车场");
+                    dwdTourParkMonitorRt.setAllnum(total);
+                    dwdTourParkMonitorRt.setResidualNumber(current);
+                    dwdTourParkMonitorRt.setDateTime(new Date());
+                    logger.info(">>>>>>>>>>>>>>>>>>>>>>更新停车场信息");
+                    dwdTourParkMonitorRtService.update(dwdTourParkMonitorRt);
+                    logger.info(">>>>>>>>>>>>>>>>>>>>>>更新停车场信息>>>>>>>>>>>>>>>>>>>>>>成功");
+                }else{
+                    logger.info("请求失败");
+                }
+//            }else{
+//                logger.info(">>>>>>>>>>>>>>>>>>>>>>网络不通");
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     @Autowired
