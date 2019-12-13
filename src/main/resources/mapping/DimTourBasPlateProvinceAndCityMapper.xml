@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.DimTourBasPlateProvinceAndCityDao">
+	<!-- com.hqt1af.entity.manage.DimTourBasPlateProvinceAndCity -->
+ 	<resultMap id="base" type="DimTourBasPlateProvinceAndCity" >
+	     <result column="code" property="code" jdbcType="CHAR"/>
+	     <result column="city" property="city" jdbcType="CHAR"/>
+	     <result column="province" property="province" jdbcType="CHAR"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="DimTourBasPlateProvinceAndCity">
+       SELECT t.* FROM dim_tour_bas_plate_province_and_city t WHERE 1=1 
+       <if test="id != null and id!='' ">
+        	AND t.id=#{id}
+       </if>
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="DimTourBasPlateProvinceAndCity">
+       SELECT t.* FROM dim_tour_bas_plate_province_and_city t WHERE 1=1 
+       <if test="param.status!= null">
+        AND t.status=#{param.status}
+       </if>
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.create_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="DimTourBasPlateProvinceAndCity">
+       SELECT count(*) FROM dim_tour_bas_plate_province_and_city t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="DimTourBasPlateProvinceAndCity">	
+ 	<![CDATA[
+	INSERT INTO dim_tour_bas_plate_province_and_city(
+	code ,city ,province 
+	) VALUES (
+	#{code}, #{city}, #{province} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO dim_tour_bas_plate_province_and_city(
+	code ,city ,province 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.code}, #{o.city}, #{o.province} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="DimTourBasPlateProvinceAndCity">
+		UPDATE dim_tour_bas_plate_province_and_city 
+		SET
+          city = #{city},
+          province = #{province}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="DimTourBasPlateProvinceAndCity">
+	DELETE FROM dim_tour_bas_plate_province_and_city  
+	WHERE id=#{id}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM dim_tour_bas_plate_province_and_city WHERE id in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.id}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>
