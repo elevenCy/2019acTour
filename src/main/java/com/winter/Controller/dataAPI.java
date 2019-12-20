@@ -95,7 +95,8 @@ public class dataAPI {
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/api/in_data.jspx";
         //获取数据
-        String sql ="SELECT sum(number) number from dwd_tour_tourist_number_devc_middle WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour,quarter ORDER BY createdate desc LIMIT 2;";
+        String sql ="SELECT sum(number) number,date_time,hour,quarter from dwd_tour_tourist_number_devc_middle "
+                +"WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour,quarter ORDER BY r,date_time desc,hour desc,quarter desc LIMIT 2;";
         List<DwdTourTouristNumberDevcMiddle> list = dwdTourTouristNumberDevcMiddleService.findBySql(sql);
         //组合
         JSONObject json = new JSONObject();
@@ -128,7 +129,7 @@ public class dataAPI {
     /**
      * 客流(进入)接口数据 —— 一小时一次
      */
-    @Scheduled(cron="0 0 0/1 * * ?")//一小时一次
+//    @Scheduled(cron="0 0 0/1 * * ?")//一小时一次
     public void touristEntryNumberHour(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -137,7 +138,8 @@ public class dataAPI {
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/api/in_data.jspx";
         //获取数据
-        String sql ="SELECT sum(number) number from dwd_tour_tourist_number_devc_h WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour ORDER BY createdate desc LIMIT 2;";
+        String sql ="SELECT sum(number) number,date_time,hour from dwd_tour_tourist_number_devc_h " +
+                "WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour ORDER BY date_time desc,hour desc desc LIMIT 2;";
         List<DwdTourTouristNumberDevcRt> list = dwdTourTouristNumberDevcRtService.findBySql(sql);
         //组合
         JSONObject json = new JSONObject();
@@ -170,7 +172,7 @@ public class dataAPI {
     /**
      * 客流(进入)接口数据 —— 一天一次
      */
-    @Scheduled(cron="0 58 23 * * ? ")
+//    @Scheduled(cron="0 58 23 * * ? ")
     public void touristEntryNumberDay(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
