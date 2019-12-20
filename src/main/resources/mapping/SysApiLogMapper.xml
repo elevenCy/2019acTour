@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.mapper.SysApiLogDao">
+	<!-- com.hqt1af.entity.manage.SysApiLog -->
+ 	<resultMap id="base" type="SysApiLog" >
+	     <result column="id" property="id" jdbcType="VARCHAR"/>
+	     <result column="name" property="name" jdbcType="VARCHAR"/>
+	     <result column="url" property="url" jdbcType="VARCHAR"/>
+	     <result column="param" property="param" jdbcType="LONGVARCHAR"/>
+	     <result column="send_time" property="sendTime" jdbcType="TIMESTAMP"/>
+ 	</resultMap>
+ 	
+ 	<!-- 查看详情 -->
+ 	<select id="find"  resultMap="base" parameterType="SysApiLog">
+       SELECT t.* FROM sys_api_log t WHERE 1=1 
+       <if test="id != null and id!='' ">
+        	AND t.id=#{id}
+       </if>
+    </select>
+ 	
+ 	<!-- 列表查询 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="SysApiLog">
+       SELECT t.* FROM sys_api_log t WHERE 1=1 
+       <if test="param.status!= null">
+        AND t.status=#{param.status}
+       </if>
+       <if test="param.keyWord!=null and param.keyWord!='' ">
+       AND (t.name LIKE CONCAT('%',#{param.keyWord},'%'))
+       </if>
+        ORDER BY t.create_time desc
+    </select>
+    
+ 	<!-- 记录数 -->
+    <select id="count"  resultType="int" parameterType="SysApiLog">
+       SELECT count(*) FROM sys_api_log t WHERE 1=1 
+    </select>  
+    
+    <!-- 添加 -->      
+ 	<insert id="insert" parameterType="SysApiLog">	
+ 	<![CDATA[
+	INSERT INTO sys_api_log(
+	id ,name ,url ,param ,send_time 
+	) VALUES (
+	#{id}, #{name}, #{url}, #{param}, #{sendTime} 
+	)
+	]]>  
+	</insert>
+	
+	<!-- 批量添加 -->      
+ 	<insert id="insertBatch" parameterType="java.util.List">	
+	INSERT INTO sys_api_log(
+	id ,name ,url ,param ,send_time 
+	) VALUES 
+	<foreach item="o" collection="list"  separator="," >
+	(#{o.id}, #{o.name}, #{o.url}, #{o.param}, #{o.sendTime} )
+	</foreach>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="SysApiLog">
+		UPDATE sys_api_log 
+		SET
+          name = #{name},
+          url = #{url},
+          param = #{param},
+          send_time = #{sendTime}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="SysApiLog">
+	DELETE FROM sys_api_log  
+	WHERE id=#{id}
+	</delete>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch" parameterType ="java.util.List">
+	DELETE FROM sys_api_log WHERE id in(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+#{o.id}		</foreach>
+		)
+	</delete>
+	
+	<select id="findBySql" parameterType="string" resultMap="base">${sql}</select>
+
+    <select id="updateBySql" parameterType="string" resultType="java.lang.Integer">${sql}</select>
+    
+    <select id="findObjBySql" parameterType="string" resultType="java.lang.Object">${sql}</select>
+</mapper>

@@ -35,6 +35,8 @@ public class dataAPI {
     private OdsTourTrlCarInfoService odsTourTrlCarInfoService;
     @Autowired
     private DimTourBasPlateProvinceAndCityService dimTourBasPlateProvinceAndCityService;
+    @Autowired
+    private SysApiLogService sysApiLogService;
 
     private  String inDevc3 = "5d8217d47bde44938e80760e702bc1e2";
     private  String inDevc2 = "70baf7dcd203419994d6e1214c4f4e8f";
@@ -43,9 +45,14 @@ public class dataAPI {
 
     @RequestMapping("test")
     @ResponseBody
-    public void test(@RequestBody  String str){
+    public JSONObject test(@RequestBody  String str){
         JSONObject jsonObject = JSON.parseObject(str);
         System.out.println(jsonObject);
+        JSONObject json = new JSONObject();
+        json.put("code",200);
+        json.put("message","ok");
+        json.put("time","1111");
+        return json;
     }
 
     /**
@@ -54,33 +61,63 @@ public class dataAPI {
     @Scheduled(cron="0 0/5 * * * ? ") //5分钟
     public void realTimeNumberInPark(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") ;
+        SysApiLog sal = new SysApiLog();
 
         //时间点&加密&url
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/api/realtime_data.jspx";
+//        String url = "http://localhost:8071/test";
         //获取数据
-        List<DwdTourTouristNumberRt> list = dwdTourTouristNumberRtService.findBySql("select * from dwd_tour_tourist_number_rt");
-        //组合
-        JSONObject json = new JSONObject();
-        json.put("userName",userName);
-        json.put("timestamp",timestamp);
-        json.put("sign",sign);
-        json.put("api_value",list.get(0).getNumber());
-        json.put("api_time",dateFormat.format(new Date()));
-        json.put("uuid","");//TODO uuid
-        //data内容
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("spot_id","");
-        jsonObject.put("spot_name","安昌古镇");
-        jsonObject.put("spot_value",list.get(0).getNumber());
-        jsonObject.put("spot_time",dateFormat.format(list.get(0).getCreatedate()));
-        jsonArray.add(jsonObject);
-        json.put("data",jsonArray);
-        //发送
-        String s = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
-        System.out.println(s);
+        List<DwdTourTouristNumberRt> list = null ;
+        try {
+            list = dwdTourTouristNumberRtService.findBySql("select * from dwd_tour_tourist_number_rt");
+        }catch (Exception e){
+            sal.setId(getUUID32());
+            sal.setName("实时在园人数接口数据");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
+        if(list.size()>0){
+            //组合
+            JSONObject json = new JSONObject();
+            json.put("userName",userName);
+            json.put("timestamp",timestamp);
+            json.put("sign",sign);
+            json.put("api_value",list.get(0).getNumber());
+            json.put("api_time",dateFormat.format(new Date()));
+            json.put("uuid","");//TODO uuid
+            //data内容
+            JSONArray jsonArray = new JSONArray();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("spot_id","");
+            jsonObject.put("spot_name","安昌古镇");
+            jsonObject.put("spot_value",list.get(0).getNumber());
+            jsonObject.put("spot_time",dateFormat.format(list.get(0).getCreatedate()));
+            jsonArray.add(jsonObject);
+            json.put("data",jsonArray);
+            //发送
+            String s = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
+            System.out.println(s);
+            JSONObject httpjson = JSONObject.parseObject(s);
+
+            sal.setId(getUUID32());
+            sal.setName("实时在园人数接口数据");
+            sal.setParam(httpjson.getString("message"));
+            sal.setUrl(s);
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }else{
+            sal.setId(getUUID32());
+            sal.setName("实时在园人数接口数据");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
+
     }
 
     /**
@@ -89,41 +126,71 @@ public class dataAPI {
     @Scheduled(cron="0 0/15 * * * ?") //15分钟
     public void touristEntryNumberQuarter(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SysApiLog sal = new SysApiLog();
 
         //时间点&加密&url
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/api/in_data.jspx";
+
+        List<DwdTourTouristNumberDevcMiddle> list = null;
         //获取数据
-        String sql ="SELECT sum(number) number,date_time,hour,quarter from dwd_tour_tourist_number_devc_middle "
-                +"WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour,quarter ORDER BY r,date_time desc,hour desc,quarter desc LIMIT 2;";
-        List<DwdTourTouristNumberDevcMiddle> list = dwdTourTouristNumberDevcMiddleService.findBySql(sql);
-        //组合
-        JSONObject json = new JSONObject();
-        json.put("userName",userName);
-        json.put("timestamp",timestamp);
-        json.put("sign",sign);
-        json.put("api_id","1001");
-        json.put("spot_name","安昌古镇");
-        //data内容
-        JSONArray jsonArray = new JSONArray();
-        if(list.size()>0){
-            Integer num1 = list.get(0).getNumber();
-            Integer num2 = 0;
-            if(list.size() == 2){
-                num2 = list.get(1).getNumber();
-            }
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("spot_id","");
-            jsonObject.put("spot_name","安昌古镇");
-            jsonObject.put("api_value",num1-num2);
-            jsonObject.put("api_time",dateFormat.format(new Date()));
-            jsonArray.add(jsonObject);
+        try{
+            String sql ="SELECT sum(number) number,date_time,hour,quarter from dwd_tour_tourist_number_devc_middle "
+                    +"WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour,quarter ORDER BY r,date_time desc,hour desc,quarter desc LIMIT 2;";
+            list = dwdTourTouristNumberDevcMiddleService.findBySql(sql);
+        }catch (Exception e){
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(十五分钟)");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
         }
-        json.put("data",jsonArray);
-        //发送
-        String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
-        System.out.println(a);
+
+        if(list.size()>0){
+            //组合
+            JSONObject json = new JSONObject();
+            json.put("userName",userName);
+            json.put("timestamp",timestamp);
+            json.put("sign",sign);
+            json.put("api_id","1001");
+            json.put("spot_name","安昌古镇");
+            //data内容
+            JSONArray jsonArray = new JSONArray();
+            if(list.size()>0){
+                Integer num1 = list.get(0).getNumber();
+                Integer num2 = 0;
+                if(list.size() == 2){
+                    num2 = list.get(1).getNumber();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("spot_id","");
+                jsonObject.put("spot_name","安昌古镇");
+                jsonObject.put("api_value",num1-num2);
+                jsonObject.put("api_time",dateFormat.format(new Date()));
+                jsonArray.add(jsonObject);
+            }
+            json.put("data",jsonArray);
+            //发送
+            String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
+            System.out.println(a);
+            JSONObject httpjson = JSONObject.parseObject(a);
+
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(十五分钟)");
+            sal.setParam(httpjson.getString("message"));
+            sal.setUrl(a);
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }else {
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(十五分钟)");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
     }
 
     /**
@@ -132,41 +199,72 @@ public class dataAPI {
 //    @Scheduled(cron="0 0 0/1 * * ?")//一小时一次
     public void touristEntryNumberHour(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SysApiLog sal = new SysApiLog();
 
         //时间点&加密&url
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/api/in_data.jspx";
-        //获取数据
-        String sql ="SELECT sum(number) number,date_time,hour from dwd_tour_tourist_number_devc_h " +
-                "WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour ORDER BY date_time desc,hour desc desc LIMIT 2;";
-        List<DwdTourTouristNumberDevcRt> list = dwdTourTouristNumberDevcRtService.findBySql(sql);
-        //组合
-        JSONObject json = new JSONObject();
-        json.put("userName",userName);
-        json.put("timestamp",timestamp);
-        json.put("sign",sign);
-        json.put("api_id","1002");
-        json.put("spot_name","安昌古镇");
-        //data内容
-        JSONArray jsonArray = new JSONArray();
-        if(list.size()>0){
-            Integer num1 = list.get(0).getNumber();
-            Integer num2 = 0;
-            if(list.size() == 2){
-                num2 = list.get(1).getNumber();
-            }
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("spot_id","");
-            jsonObject.put("spot_name","安昌古镇");
-            jsonObject.put("api_value",num1-num2);
-            jsonObject.put("api_time",dateFormat.format(new Date()));
-            jsonArray.add(jsonObject);
+
+        List<DwdTourTouristNumberDevcRt> list = null;
+        try{
+            //获取数据
+            String sql ="SELECT sum(number) number,date_time,hour from dwd_tour_tourist_number_devc_h " +
+                    "WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour ORDER BY date_time desc,hour desc desc LIMIT 2;";
+            list = dwdTourTouristNumberDevcRtService.findBySql(sql);
+        }catch (Exception e){
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(一小时)");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
         }
-        json.put("data",jsonArray);
-        //发送
-        String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
-        System.out.println(a);
+
+        if(list.size()>0){
+            //组合
+            JSONObject json = new JSONObject();
+            json.put("userName",userName);
+            json.put("timestamp",timestamp);
+            json.put("sign",sign);
+            json.put("api_id","1002");
+            json.put("spot_name","安昌古镇");
+            //data内容
+            JSONArray jsonArray = new JSONArray();
+            if(list.size()>0){
+                Integer num1 = list.get(0).getNumber();
+                Integer num2 = 0;
+                if(list.size() == 2){
+                    num2 = list.get(1).getNumber();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("spot_id","");
+                jsonObject.put("spot_name","安昌古镇");
+                jsonObject.put("api_value",num1-num2);
+                jsonObject.put("api_time",dateFormat.format(new Date()));
+                jsonArray.add(jsonObject);
+            }
+            json.put("data",jsonArray);
+            //发送
+            String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
+            System.out.println(a);
+            JSONObject httpjson = JSONObject.parseObject(a);
+
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(一小时)");
+            sal.setParam(httpjson.getString("message"));
+            sal.setUrl(a);
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }else{
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(一小时)");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
+
     }
 
     /**
@@ -175,40 +273,71 @@ public class dataAPI {
 //    @Scheduled(cron="0 58 23 * * ? ")
     public void touristEntryNumberDay(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SysApiLog sal = new SysApiLog();
 
         //时间点&加密&url
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/api/in_data.jspx";
+
+        List<DwdTourTouristNumberDevcRt> list = null;
         //获取数据
-        String sql ="SELECT sum(number) number FROM dwd_tour_tourist_number_devc_h WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour  ORDER BY createdate desc LIMIT 1;";
-        List<DwdTourTouristNumberDevcRt> list = dwdTourTouristNumberDevcRtService.findBySql(sql);
-        //组合
-        JSONObject json = new JSONObject();
-        json.put("userName",userName);
-        json.put("timestamp",timestamp);
-        json.put("sign",sign);
-        json.put("api_id","1003");
-        json.put("spot_name","安昌古镇");
-        //data内容
-        JSONArray jsonArray = new JSONArray();
-        if(list.size()>0){
-            Integer num1 = list.get(0).getNumber();
-            Integer num2 = 0;
-            if(list.size() == 2){
-                num2 = list.get(1).getNumber();
-            }
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("spot_id","");
-            jsonObject.put("spot_name","安昌古镇");
-            jsonObject.put("api_value",num1-num2);
-            jsonObject.put("api_time",dateFormat.format(new Date()));
-            jsonArray.add(jsonObject);
+        try {
+            String sql ="SELECT sum(number) number FROM dwd_tour_tourist_number_devc_h WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour  ORDER BY createdate desc LIMIT 1;";
+            list = dwdTourTouristNumberDevcRtService.findBySql(sql);
+        }catch (Exception e){
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(一天)");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
         }
-        json.put("data",jsonArray);
-        //发送
-        String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
-        System.out.println(a);
+
+        if(list.size()>0){
+            //组合
+            JSONObject json = new JSONObject();
+            json.put("userName",userName);
+            json.put("timestamp",timestamp);
+            json.put("sign",sign);
+            json.put("api_id","1003");
+            json.put("spot_name","安昌古镇");
+            //data内容
+            JSONArray jsonArray = new JSONArray();
+            if(list.size()>0){
+                Integer num1 = list.get(0).getNumber();
+                Integer num2 = 0;
+                if(list.size() == 2){
+                    num2 = list.get(1).getNumber();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("spot_id","");
+                jsonObject.put("spot_name","安昌古镇");
+                jsonObject.put("api_value",num1-num2);
+                jsonObject.put("api_time",dateFormat.format(new Date()));
+                jsonArray.add(jsonObject);
+            }
+            json.put("data",jsonArray);
+            //发送
+            String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
+            System.out.println(a);
+
+            JSONObject httpjson = JSONObject.parseObject(a);
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(一天)");
+            sal.setParam(httpjson.getString("message"));
+            sal.setUrl(a);
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }else{
+            sal.setId(getUUID32());
+            sal.setName("客流(进入)接口数据(一天)");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
+
     }
 
     /**
@@ -225,11 +354,24 @@ public class dataAPI {
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/api/lyd_data.jspx";
-        //获取数据
-        String provinceSql = "SELECT * FROM dwd_tour_park_car_from_province_d WHERE date_time = '"+yesterday+"'";
-        List<DwdTourParkCarFromProvinceD> provinceList = dwdTourParkCarFromProvinceDService.findBySql(provinceSql);
-        String citySql = "SELECT * FROM dwd_tour_park_car_from_city_d WHERE date_time = '"+yesterday+"'";
-        List<DwdTourParkCarFromCityD> cityList = dwdTourParkCarFromCityDService.findBySql(citySql);
+
+        List<DwdTourParkCarFromProvinceD> provinceList = null;
+        List<DwdTourParkCarFromCityD> cityList = null;
+        try {
+            //获取数据
+            String provinceSql = "SELECT * FROM dwd_tour_park_car_from_province_d WHERE date_time = '"+yesterday+"'";
+            provinceList = dwdTourParkCarFromProvinceDService.findBySql(provinceSql);
+            String citySql = "SELECT * FROM dwd_tour_park_car_from_city_d WHERE date_time = '"+yesterday+"'";
+            cityList = dwdTourParkCarFromCityDService.findBySql(citySql);
+        }catch (Exception e){
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("游客来源地消息");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
         //组合
         JSONObject json = new JSONObject();
         json.put("userName",userName);
@@ -245,6 +387,14 @@ public class dataAPI {
                 jsonObject.put("api_value",provinceList.get(i).getNumber());
                 jsonArray.add(jsonObject);
             }
+        }else{
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("游客来源省份数据");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
         }
         json.put("province",jsonArray);
         //city 内容
@@ -256,11 +406,27 @@ public class dataAPI {
                 jsonObject.put("api_value",cityList.get(i).getNumber());
                 jsonArray.add(jsonObject);
             }
+        }else{
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("游客来源城市数据");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
         }
         json.put("city",jsonArray);
         //发送
         String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
         System.out.println(a);
+        JSONObject httpjson = JSONObject.parseObject(a);
+        SysApiLog sal = new SysApiLog();
+        sal.setId(getUUID32());
+        sal.setName("游客来源地消息");
+        sal.setParam(httpjson.getString("message"));
+        sal.setUrl(a);
+        sal.setSendTime(new Date());
+        sysApiLogService.insert(sal);
     }
 
     /**
@@ -274,27 +440,56 @@ public class dataAPI {
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/park/realtime_data.jspx";
-        //获取数据
-        List<DwdTourParkMonitorRt> list = dwdTourParkMonitorRtService.findBySql("select * from dwd_tour_park_monitor_rt");
-        //组合
-        JSONObject json = new JSONObject();
-        json.put("userName",userName);
-        json.put("timestamp",timestamp);
-        json.put("sign",sign);
-        //data内容
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("park_name",list.get(0).getObjectname());
-        //已用车位数
-        jsonObject.put("park_in",list.get(0).getAllnum()-list.get(0).getResidualNumber());
-        //剩余车位数
-        jsonObject.put("idle",list.get(0).getResidualNumber());
-        jsonObject.put("park_time",dateFormat.format(list.get(0).getDateTime()));
-        jsonArray.add(jsonObject);
-        json.put("data",jsonArray);
-        //发送
-        String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
-        System.out.println(a);
+        List<DwdTourParkMonitorRt> list = null;
+        try{
+            //获取数据
+            list = dwdTourParkMonitorRtService.findBySql("select * from dwd_tour_park_monitor_rt");
+        }catch (Exception e){
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("停车场实时车位信息");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
+        if(list.size()>0){
+            //组合
+            JSONObject json = new JSONObject();
+            json.put("userName",userName);
+            json.put("timestamp",timestamp);
+            json.put("sign",sign);
+            //data内容
+            JSONArray jsonArray = new JSONArray();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("park_name",list.get(0).getObjectname());
+            //已用车位数
+            jsonObject.put("park_in",list.get(0).getAllnum()-list.get(0).getResidualNumber());
+            //剩余车位数
+            jsonObject.put("idle",list.get(0).getResidualNumber());
+            jsonObject.put("park_time",dateFormat.format(list.get(0).getDateTime()));
+            jsonArray.add(jsonObject);
+            json.put("data",jsonArray);
+            //发送
+            String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
+            System.out.println(a);
+            JSONObject httpjson = JSONObject.parseObject(a);
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("游客来源地消息");
+            sal.setParam(httpjson.getString("message"));
+            sal.setUrl(a);
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }else{
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("游客来源城市数据");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
     }
 
     /**
@@ -313,50 +508,80 @@ public class dataAPI {
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/park/in_data.jspx";
-        //获取 入场数据
-        List<OdsTourTrlCarInfo> list = odsTourTrlCarInfoService.findBySql("SELECT * FROM ods_tour_trl_car_info WHERE passTime>='"+before15+"' and direction = 0 ORDER BY passTime desc;");
-        //组合
-        JSONObject json = new JSONObject();
-        json.put("userName",userName);
-        json.put("timestamp",timestamp);
-        json.put("sign",sign);
-        //data内容
-        JSONArray jsonArray = new JSONArray();
+        List<OdsTourTrlCarInfo> list = null;
+        try{
+            //获取 入场数据
+            list = odsTourTrlCarInfoService.findBySql("SELECT * FROM ods_tour_trl_car_info WHERE passTime>='"+before15+"' and direction = 0 ORDER BY passTime desc;");
+        }catch (Exception e){
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("入场记录");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
+
         if(list.size()>0){
-            for(int i = 0;i < list.size();i++){
-                OdsTourTrlCarInfo ottci = list.get(i);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("cardId",ottci.getUniqueNo());
-                jsonObject.put("carNo",ottci.getPlateNo());
-                jsonObject.put("in_name",ottci.getGateName());
-                jsonObject.put("in_time",ottci.getPassTime());
-                if(ottci.getPlateNo().equals("无车牌")){
-                    jsonObject.put("province","");
-                    jsonObject.put("city","");
-                }else{
-                    String firstPlateNo = ottci.getPlateNo().substring(0,1);
-                    if(firstPlateNo.equals("浙")){
-                        //省内
-                        firstPlateNo = ottci.getPlateNo().substring(0,2);
-                    }
-                    String sql = "SELECT * from dim_tour_bas_plate_province_and_city WHERE code = '"+firstPlateNo+"'";
-                    List<DimTourBasPlateProvinceAndCity> list2 =dimTourBasPlateProvinceAndCityService.findBySql(sql);
-                    if(list2.size()>0){
-                        jsonObject.put("province",list2.get(0).getProvince());
-                        jsonObject.put("city",list2.get(0).getCity());
-                    }else{
+            //组合
+            JSONObject json = new JSONObject();
+            json.put("userName",userName);
+            json.put("timestamp",timestamp);
+            json.put("sign",sign);
+            //data内容
+            JSONArray jsonArray = new JSONArray();
+            if(list.size()>0){
+                for(int i = 0;i < list.size();i++){
+                    OdsTourTrlCarInfo ottci = list.get(i);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("cardId",ottci.getUniqueNo());
+                    jsonObject.put("carNo",ottci.getPlateNo());
+                    jsonObject.put("in_name",ottci.getGateName());
+                    jsonObject.put("in_time",ottci.getPassTime());
+                    if(ottci.getPlateNo().equals("无车牌")){
                         jsonObject.put("province","");
                         jsonObject.put("city","");
+                    }else{
+                        String firstPlateNo = ottci.getPlateNo().substring(0,1);
+                        if(firstPlateNo.equals("浙")){
+                            //省内
+                            firstPlateNo = ottci.getPlateNo().substring(0,2);
+                        }
+                        String sql = "SELECT * from dim_tour_bas_plate_province_and_city WHERE code = '"+firstPlateNo+"'";
+                        List<DimTourBasPlateProvinceAndCity> list2 =dimTourBasPlateProvinceAndCityService.findBySql(sql);
+                        if(list2.size()>0){
+                            jsonObject.put("province",list2.get(0).getProvince());
+                            jsonObject.put("city",list2.get(0).getCity());
+                        }else{
+                            jsonObject.put("province","");
+                            jsonObject.put("city","");
+                        }
                     }
+                    jsonObject.put("type",VehType.getVehType(ottci.getVehType()));
+                    jsonArray.add(jsonObject);
                 }
-                jsonObject.put("type",VehType.getVehType(ottci.getVehType()));
-                jsonArray.add(jsonObject);
             }
+            json.put("data",jsonArray);
+            //发送
+            String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
+            System.out.println(a);
+            JSONObject httpjson = JSONObject.parseObject(a);
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("入场记录");
+            sal.setParam(httpjson.getString("message"));
+            sal.setUrl(a);
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }else {
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("入场记录");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
         }
-        json.put("data",jsonArray);
-        //发送
-        String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
-        System.out.println(a);
     }
 
     /**
@@ -375,47 +600,76 @@ public class dataAPI {
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
         String url = "http://kq.tour-ma.com/park/out_data.jspx";
-        //获取 出场数据
-        List<OdsTourTrlCarInfo> list = odsTourTrlCarInfoService.findBySql("SELECT * FROM ods_tour_trl_car_info WHERE passTime>='"+before15+"' and direction = 1 ORDER BY passTime desc;");
-        //List<OdsTourTrlCarInfo> list = odsTourTrlCarInfoService.findBySql("SELECT * FROM ods_tour_trl_car_info WHERE passTime>='2019-10-22 15:13:15' and direction = 1 ORDER BY passTime desc;");
-        //组合
-        JSONObject json = new JSONObject();
-        json.put("userName",userName);
-        json.put("timestamp",timestamp);
-        json.put("sign",sign);
-        //data内容
-        JSONArray jsonArray = new JSONArray();
-        if(list.size()>0){
-            for(int i = 0;i < list.size();i++){
-                OdsTourTrlCarInfo ottci = list.get(i);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("cardId",ottci.getUniqueNo());
-                jsonObject.put("carNo",ottci.getPlateNo());
-                jsonObject.put("out_name",ottci.getGateName());
-                jsonObject.put("out_time",ottci.getPassTime());
-
-                if(ottci.getPlateNo().equals("无车牌")){
-                    jsonObject.put("in_name",ottci.getGateName());
-                    jsonObject.put("in_time",ottci.getPassTime());
-                }else{
-                    String sql = "SELECT * FROM ods_tour_trl_car_info WHERE passTime < '"+ottci.getPassTime()+"' and plateNo='"+ottci.getPlateNo()+"'  and direction = 0 ORDER BY passTime desc;";
-                    List<OdsTourTrlCarInfo> list2 =odsTourTrlCarInfoService.findBySql(sql);
-                    if(list2.size()>0){
-                        jsonObject.put("in_name",list2.get(0).getGateName());
-                        jsonObject.put("in_time",list2.get(0).getPassTime());
-                    }else{
-                        jsonObject.put("in_name","");
-                        jsonObject.put("in_time","");
-                    }
-                }
-                jsonObject.put("type",VehType.getVehType(ottci.getVehType()));
-                jsonArray.add(jsonObject);
-            }
+        List<OdsTourTrlCarInfo> list = null;
+        try{
+            //获取 出场数据
+            list = odsTourTrlCarInfoService.findBySql("SELECT * FROM ods_tour_trl_car_info WHERE passTime>='"+before15+"' and direction = 1 ORDER BY passTime desc;");
+        }catch (Exception e){
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("出场记录");
+            sal.setParam("数据库报错");
+            sal.setUrl(e.toString());
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
         }
-        json.put("data",jsonArray);
-        //发送
-        String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
-        System.out.println(a);
+
+        if(list.size()>0){
+            //组合
+            JSONObject json = new JSONObject();
+            json.put("userName",userName);
+            json.put("timestamp",timestamp);
+            json.put("sign",sign);
+            //data内容
+            JSONArray jsonArray = new JSONArray();
+            if(list.size()>0){
+                for(int i = 0;i < list.size();i++){
+                    OdsTourTrlCarInfo ottci = list.get(i);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("cardId",ottci.getUniqueNo());
+                    jsonObject.put("carNo",ottci.getPlateNo());
+                    jsonObject.put("out_name",ottci.getGateName());
+                    jsonObject.put("out_time",ottci.getPassTime());
+
+                    if(ottci.getPlateNo().equals("无车牌")){
+                        jsonObject.put("in_name",ottci.getGateName());
+                        jsonObject.put("in_time",ottci.getPassTime());
+                    }else{
+                        String sql = "SELECT * FROM ods_tour_trl_car_info WHERE passTime < '"+ottci.getPassTime()+"' and plateNo='"+ottci.getPlateNo()+"'  and direction = 0 ORDER BY passTime desc;";
+                        List<OdsTourTrlCarInfo> list2 =odsTourTrlCarInfoService.findBySql(sql);
+                        if(list2.size()>0){
+                            jsonObject.put("in_name",list2.get(0).getGateName());
+                            jsonObject.put("in_time",list2.get(0).getPassTime());
+                        }else{
+                            jsonObject.put("in_name","");
+                            jsonObject.put("in_time","");
+                        }
+                    }
+                    jsonObject.put("type",VehType.getVehType(ottci.getVehType()));
+                    jsonArray.add(jsonObject);
+                }
+            }
+            json.put("data",jsonArray);
+            //发送
+            String a = HttpRequest.sendPostJsonStr(url,JSONObject.toJSONString(json));
+            System.out.println(a);
+            JSONObject httpjson = JSONObject.parseObject(a);
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("出场记录");
+            sal.setParam(httpjson.getString("message"));
+            sal.setUrl(a);
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }else{
+            SysApiLog sal = new SysApiLog();
+            sal.setId(getUUID32());
+            sal.setName("出场记录");
+            sal.setParam("无数据");
+            sal.setUrl("");
+            sal.setSendTime(new Date());
+            sysApiLogService.insert(sal);
+        }
     }
 
     //sign加密
@@ -459,12 +713,21 @@ public class dataAPI {
          */
         public static  String getVehType(Integer vehType){
             for (VehType airlineTypeEnum : VehType.values()) {
-               if(vehType.equals(airlineTypeEnum.getValue())){
-                   return airlineTypeEnum.toString();
-               }
+                if(vehType.equals(airlineTypeEnum.getValue())){
+                    return airlineTypeEnum.toString();
+                }
             }
             return null;
         }
+    }
+
+    /**
+     * 32位 uuid
+     */
+    public String getUUID32(){
+        String uuid = UUID.randomUUID().toString();
+        uuid = uuid.replace("-", "");
+        return uuid;
     }
 
 
