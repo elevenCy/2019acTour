@@ -493,7 +493,7 @@ public class dataAPI {
             JSONObject httpjson = JSONObject.parseObject(a);
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
-            sal.setName("游客来源地消息");
+            sal.setName("停车场实时车位信息");
             sal.setParam(JSONObject.toJSONString(json));
             sal.setUrl(url);
             sal.setValue(httpjson.toJSONString());
@@ -502,7 +502,7 @@ public class dataAPI {
         }else{
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
-            sal.setName("游客来源城市数据");
+            sal.setName("停车场实时车位信息");
             sal.setParam("");
             sal.setUrl(url);
             sal.setValue("无数据");
