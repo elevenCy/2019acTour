@@ -75,8 +75,9 @@ public class dataAPI {
         }catch (Exception e){
             sal.setId(getUUID32());
             sal.setName("实时在园人数接口数据");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setUrl(url);
+            sal.setParam("");
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -105,15 +106,17 @@ public class dataAPI {
 
             sal.setId(getUUID32());
             sal.setName("实时在园人数接口数据");
-            sal.setParam(httpjson.getString("message"));
-            sal.setUrl(s);
+            sal.setParam(JSONObject.toJSONString(json));
+            sal.setUrl(url);
+            sal.setValue(httpjson.toJSONString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }else{
             sal.setId(getUUID32());
             sal.setName("实时在园人数接口数据");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setUrl(url);
+            sal.setParam("");
+            sal.setValue("无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -142,8 +145,9 @@ public class dataAPI {
         }catch (Exception e){
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(十五分钟)");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -179,15 +183,17 @@ public class dataAPI {
 
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(十五分钟)");
-            sal.setParam(httpjson.getString("message"));
-            sal.setUrl(a);
+            sal.setParam(JSONObject.toJSONString(json));
+            sal.setUrl(url);
+            sal.setValue(httpjson.toJSONString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }else {
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(十五分钟)");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue("无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -215,8 +221,9 @@ public class dataAPI {
         }catch (Exception e){
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(一小时)");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -252,15 +259,17 @@ public class dataAPI {
 
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(一小时)");
-            sal.setParam(httpjson.getString("message"));
-            sal.setUrl(a);
+            sal.setParam(JSONObject.toJSONString(json));
+            sal.setUrl(url);
+            sal.setValue(httpjson.toJSONString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }else{
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(一小时)");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue("无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -288,8 +297,9 @@ public class dataAPI {
         }catch (Exception e){
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(一天)");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -325,15 +335,17 @@ public class dataAPI {
             JSONObject httpjson = JSONObject.parseObject(a);
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(一天)");
-            sal.setParam(httpjson.getString("message"));
-            sal.setUrl(a);
+            sal.setParam(JSONObject.toJSONString(json));
+            sal.setUrl(url);
+            sal.setValue(JSONObject.toJSONString(httpjson));
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }else{
             sal.setId(getUUID32());
             sal.setName("客流(进入)接口数据(一天)");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue("无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -367,8 +379,9 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("游客来源地消息");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -391,8 +404,9 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("游客来源省份数据");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue("游客来源省份无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -410,8 +424,9 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("游客来源城市数据");
-            sal.setParam("无数据");
+            sal.setParam("");
             sal.setUrl("");
+            sal.setValue("游客来源城市无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -423,8 +438,9 @@ public class dataAPI {
         SysApiLog sal = new SysApiLog();
         sal.setId(getUUID32());
         sal.setName("游客来源地消息");
-        sal.setParam(httpjson.getString("message"));
-        sal.setUrl(a);
+        sal.setParam(JSONObject.toJSONString(json));
+        sal.setUrl(url);
+        sal.setValue(httpjson.toJSONString());
         sal.setSendTime(new Date());
         sysApiLogService.insert(sal);
     }
@@ -448,8 +464,9 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("停车场实时车位信息");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -477,16 +494,18 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("游客来源地消息");
-            sal.setParam(httpjson.getString("message"));
-            sal.setUrl(a);
+            sal.setParam(JSONObject.toJSONString(json));
+            sal.setUrl(url);
+            sal.setValue(httpjson.toJSONString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }else{
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("游客来源城市数据");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue("无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -516,8 +535,9 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("入场记录");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -569,16 +589,18 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("入场记录");
-            sal.setParam(httpjson.getString("message"));
-            sal.setUrl(a);
+            sal.setParam(json.toJSONString());
+            sal.setUrl(url);
+            sal.setValue(httpjson.toJSONString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }else {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("入场记录");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue("无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -608,8 +630,9 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("出场记录");
-            sal.setParam("数据库报错");
-            sal.setUrl(e.toString());
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue(e.toString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }
@@ -657,16 +680,18 @@ public class dataAPI {
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("出场记录");
-            sal.setParam(httpjson.getString("message"));
-            sal.setUrl(a);
+            sal.setParam(json.toJSONString());
+            sal.setUrl(url);
+            sal.setValue(httpjson.toJSONString());
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }else{
             SysApiLog sal = new SysApiLog();
             sal.setId(getUUID32());
             sal.setName("出场记录");
-            sal.setParam("无数据");
-            sal.setUrl("");
+            sal.setParam("");
+            sal.setUrl(url);
+            sal.setValue("无数据");
             sal.setSendTime(new Date());
             sysApiLogService.insert(sal);
         }

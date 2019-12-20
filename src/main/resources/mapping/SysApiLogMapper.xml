@@ -7,6 +7,7 @@
 	     <result column="name" property="name" jdbcType="VARCHAR"/>
 	     <result column="url" property="url" jdbcType="VARCHAR"/>
 	     <result column="param" property="param" jdbcType="LONGVARCHAR"/>
+	     <result column="value" property="value" jdbcType="LONGVARCHAR"/>
 	     <result column="send_time" property="sendTime" jdbcType="TIMESTAMP"/>
  	</resultMap>
  	
@@ -39,9 +40,9 @@
  	<insert id="insert" parameterType="SysApiLog">	
  	<![CDATA[
 	INSERT INTO sys_api_log(
-	id ,name ,url ,param ,send_time 
+	id ,name ,url ,param ,send_time,value
 	) VALUES (
-	#{id}, #{name}, #{url}, #{param}, #{sendTime} 
+	#{id}, #{name}, #{url}, #{param}, #{sendTime}, #{value}
 	)
 	]]>  
 	</insert>

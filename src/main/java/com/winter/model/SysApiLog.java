@@ -45,14 +45,16 @@ public class SysApiLog{
 	 */
 	private String keyWord;
 
+
+	private String value;
     /**
      * @name 无参构造函数
      */
 	public SysApiLog(){
-	
+
 	}
-	
-	
+
+
 
 
 /**
@@ -147,5 +149,12 @@ public Date getSendTime() {
 		this.keyWord = keyWord;
 	}
 
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
 }
 
