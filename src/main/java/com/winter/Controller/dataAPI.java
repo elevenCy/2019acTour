@@ -58,7 +58,7 @@ public class dataAPI {
     /**
      * 实时在园人数接口数据
      */
-    @Scheduled(cron="0 0/5 * * * ? ") //5分钟
+    @Scheduled(cron="10 1/5 * * * ? ") //5分钟
     public void realTimeNumberInPark(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") ;
         SysApiLog sal = new SysApiLog();
@@ -126,7 +126,9 @@ public class dataAPI {
     /**
      * 客流(进入)接口数据 —— 十五分钟一次
      */
-    @Scheduled(cron="0 0/15 * * * ?") //15分钟
+    @Scheduled(cron="20 1/15 * * * ?") //15分钟
+//    @RequestMapping("/touristEntryNumberQuarter")
+//    @Scheduled(fixedRate=15000)
     public void touristEntryNumberQuarter(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SysApiLog sal = new SysApiLog();
@@ -140,7 +142,7 @@ public class dataAPI {
         //获取数据
         try{
             String sql ="SELECT sum(number) number,date_time,hour,quarter from dwd_tour_tourist_number_devc_middle "
-                    +"WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour,quarter ORDER BY r,date_time desc,hour desc,quarter desc LIMIT 2;";
+                    +"WHERE code in ('"+inDevc3+"','"+inDevc2+"') GROUP BY date_time,hour,quarter ORDER BY date_time desc,hour desc,quarter desc LIMIT 2;";
             list = dwdTourTouristNumberDevcMiddleService.findBySql(sql);
         }catch (Exception e){
             sal.setId(getUUID32());
@@ -171,7 +173,11 @@ public class dataAPI {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("spot_id","");
                 jsonObject.put("spot_name","安昌古镇");
-                jsonObject.put("api_value",num1-num2);
+                int value = num1 - num2;
+                if(value<0){
+                    value = 0;
+                }
+                jsonObject.put("api_value",value);
                 jsonObject.put("api_time",dateFormat.format(new Date()));
                 jsonArray.add(jsonObject);
             }
@@ -355,13 +361,14 @@ public class dataAPI {
     /**
      * 游客来源地消息 —— 前一天的数据
      */
-    @Scheduled(cron="0 0 6 * * ? ")
+    @Scheduled(cron="30 0 6 * * ? ")
+//    @RequestMapping("/sourceOfTourists")
     public void sourceOfTourists(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyyMMdd");
         //昨天日期
-        Integer yesterday = Integer.parseInt(dateFormat2.format(new Date()))-1;
-
+        Integer yesterday = Integer.parseInt(dateFormat2.format(new Date().getTime()-24*60*60*1000));
+        yesterday = 20191231;
         //时间点&加密&url
         String timestamp = Long.toString(System.currentTimeMillis() / 1000);
         String sign = signMD5(timestamp);
@@ -448,7 +455,7 @@ public class dataAPI {
     /**
      * 停车场实时车位信息
      */
-    @Scheduled(cron="0 0/5 * * * ? ")
+    @Scheduled(cron="40 0/5 * * * ? ")
     public void realTimeParkingSpace(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") ;
 
@@ -514,7 +521,7 @@ public class dataAPI {
     /**
      * 入场记录
      */
-    @Scheduled(cron="0 0/15 * * * ?")
+    @Scheduled(cron="50 0/15 * * * ?")
     public void inParkRecords(){
         Calendar beforeTime = Calendar.getInstance();
         // 5分钟之前的时间
@@ -609,7 +616,7 @@ public class dataAPI {
     /**
      * 出场记录
      */
-    @Scheduled(cron="0 0/15 * * * ?")
+    @Scheduled(cron="15 0/15 * * * ?")
     public void outParkRecords(){
         Calendar beforeTime = Calendar.getInstance();
         // 5分钟之前的时间

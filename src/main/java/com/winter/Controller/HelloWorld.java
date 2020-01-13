@@ -64,7 +64,7 @@ public class HelloWorld {
 //        logger.info(""+list.size());
 //        logger.info("每20秒执行一次。结束。");
 //    }
-    private static final String IP= "http://172.16.10.10:80";
+    private static final String IP= "http://172.16.10.10:86";
     private static final String URLgetEncoders = "/openapi/service/vss/res/getEncoders";
     private static final String URLgetCamerasEx = "/openapi/service/vss/res/getCamerasEx";
 
@@ -332,6 +332,7 @@ public class HelloWorld {
             dimTourDevcVideoSurveillanceService.insert(dimTourDevcVideoSurveillance);
         }
     }
+
     @Autowired
     private DimTourDevcSosAlarmService dimTourDevcSosAlarmService;
     public void updateDevcSosAlarmInfo(Date now,String cameraUuid,String cameraName,String cameraType,String orderNum,String onLineStatus,String encoderUuid){
@@ -586,7 +587,7 @@ public class HelloWorld {
     private DimTourDevcWifiService dimTourDevcWifiService;
 
     //wifi设备状态位及连接数
-    @Scheduled(fixedRate=1800000) //5分钟
+//    @Scheduled(fixedRate=1800000) //5分钟
     public void wifiAnalysis(){
         String sql = "SELECT * FROM `actour`.`dim_tour_devc_wifi`";
         HttpRequest httpRequest = new  HttpRequest();
@@ -659,7 +660,7 @@ public class HelloWorld {
                 //获取本地数据库中最新过车记录的时间->用此时间去查询数据->有记录插入
                 int pageNo = 1;
                 //String beginTime = "2018-11-01 01:00:00";
-                String beginTime = "2019-08-29 00:00:00";
+                String beginTime = "2019-12-17 00:00:00";
                 String sql = "select * from ods_tour_trl_car_info order by passTime desc limit 0,1";
                 logger.info(">>>>>>>>>>>>>>>>>>>>>>查询本地数据库中的过车记录");
                 List<OdsTourTrlCarInfo> odsTourTrlCarInfos = odsTourTrlCarInfoService.findBySql(sql);
